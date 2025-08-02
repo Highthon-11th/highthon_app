@@ -18,7 +18,7 @@ const Stack = createNativeStackNavigator<RootNavGraph>();
 const RootNavigation = () => {
   return (
     <Stack.Navigator
-      initialRouteName={'UploadPostScreen'}
+      initialRouteName={'Community'}
       screenOptions={{
         headerShown: false,
       }}
