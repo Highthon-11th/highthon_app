@@ -84,6 +84,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        resValue "string", "build_config_package", "com.highthon.android.app"
+        resValue "string", "KAKAO_SCHEME", "\"kakao${project.env.get("KAKAO_NATIVE_APP_KEY")}\""
     }
     signingConfigs {
         debug {
