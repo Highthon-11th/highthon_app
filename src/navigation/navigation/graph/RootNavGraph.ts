@@ -6,6 +6,8 @@ type RootNavGraph = {
   UploadPostScreen: undefined;
   AddMentor: undefined;
   Question: undefined;
+  AddMentorScreen: undefined;
+  Chat: undefined;
 };
 
 export default RootNavGraph;

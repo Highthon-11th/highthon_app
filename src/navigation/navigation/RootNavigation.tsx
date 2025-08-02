@@ -7,6 +7,8 @@ import ProfileScreen from '@screens/ProfileScreen.tsx';
 import MentoringScreen from '@screens/MentoringScreen.tsx';
 import UploadPostScreen from '@/screens/UploadPostScreen';
 import QuestionScreen from '@/screens/QuestionScreen';
+import ChatScreen from '@/screens/ChatScreen';
+import AddMentorScreen from '@/screens/AddMentor';
 
 declare global {
   namespace ReactNavigation {
@@ -30,6 +32,8 @@ const RootNavigation = () => {
       <Stack.Screen name={'Mentoring'} component={MentoringScreen} />
       <Stack.Screen name={'Question'} component={QuestionScreen} />
       <Stack.Screen name={'UploadPostScreen'} component={UploadPostScreen} />
+      <Stack.Screen name={'AddMentor'} component={AddMentorScreen} />
+      <Stack.Screen name={'Chat'} component={ChatScreen} />
     </Stack.Navigator>
   );
 };
