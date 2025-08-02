@@ -40,8 +40,13 @@ const PostCard = ({ data, onPress }: Props) => {
         </View>
         <View style={{ height: 6 }} />
         <View style={styles.tagList}>
-          {data.tags.map(tag => (
-            <Text style={[body3, { color: COLOR.main }]}># {tag}</Text>
+          {data.tags.map((tag, index) => (
+            <Text
+              id={`${data.id}-tag-${index}`}
+              style={[body3, { color: COLOR.main }]}
+            >
+              # {tag}
+            </Text>
           ))}
         </View>
         <View style={{ height: 10 }} />

@@ -24,6 +24,9 @@ import TagList from '@components/tag/TagList.tsx';
 import { ImageAsset } from '@lib/types/Image.ts';
 import { authClient } from '@lib/client';
 import { login } from '@lib/api/auth.ts';
+import { useNavigation } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
+import postQuery from '@lib/query/postQuery.ts';
 
 const { width } = Dimensions.get('window');
 
@@ -33,8 +36,9 @@ const UploadPostScreen = () => {
   const [content, setContent] = useState('');
   const [selectedImages, setSelectedImages] = useState<ImageAsset[]>([]);
 
+  const navigation = useNavigation();
   const [selectedTags, setSelectedTags] = useState<number[]>([]);
-
+  const queryClient = useQueryClient();
   const openGallery = () => {
     const options: ImageLibraryOptions = {
       mediaType: 'photo' as MediaType,
@@ -196,17 +200,14 @@ const UploadPostScreen = () => {
               body.append(`tagIdList`, tag.toString());
             });
 
-            // body.append('image', selectedImages[0]);
-            console.log('login start');
-
-            await login();
-
-            console.log('login success');
-
+            if (selectedImages.length > 0) {
+              body.append('image', selectedImages[0]);
+            }
             authClient
               .postForm('/post/create', body)
-              .then(res => {
-                console.log('res', res.data);
+              .then(() => {
+                queryClient.fetchQuery(postQuery.list([]));
+                navigation.navigate('Community');
               })
               .catch(err => console.error(err));
           }}

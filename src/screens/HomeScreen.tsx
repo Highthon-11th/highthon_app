@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import { useNavigation } from '@react-navigation/native';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
   ActivityIndicator,
+  Dimensions,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { defaultClient } from '@/lib/client';
 import postQuery from '@lib/query/postQuery.ts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -76,9 +76,11 @@ const MentorMenteeScreen = () => {
       setFilteredPosts(postsData);
     } else {
       const filtered = postsData.filter(post =>
-        selectedTags.some(selectedTag => 
-          post.tags.some(postTag => postTag.includes(selectedTag.replace('#', '')))
-        )
+        selectedTags.some(selectedTag =>
+          post.tags.some(postTag =>
+            postTag.includes(selectedTag.replace('#', '')),
+          ),
+        ),
       );
       setFilteredPosts(filtered);
     }
@@ -166,8 +168,8 @@ const MentorMenteeScreen = () => {
             key={i}
             style={[
               styles.postTag,
-              selectedTags.some(selectedTag => 
-                tag.includes(selectedTag.replace('#', ''))
+              selectedTags.some(selectedTag =>
+                tag.includes(selectedTag.replace('#', '')),
               ) && styles.highlightedTag,
             ]}
           >
@@ -256,8 +258,9 @@ const MentorMenteeScreen = () => {
         {/* 필터링된 게시글 표시 */}
         {selectedTags.length > 0 && (
           <Text style={styles.filterInfo}>
-            {selectedTags.join(', ')} 태그로 필터링된 게시글 ({filteredPosts.length}개
-            중 {Math.min(filteredPosts.length, 2)}개 표시)
+            {selectedTags.join(', ')} 태그로 필터링된 게시글 (
+            {filteredPosts.length}개 중 {Math.min(filteredPosts.length, 2)}개
+            표시)
           </Text>
         )}
 
@@ -269,10 +272,9 @@ const MentorMenteeScreen = () => {
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
-              {selectedTags.length > 0 
+              {selectedTags.length > 0
                 ? '선택한 태그에 해당하는 게시글이 없습니다.'
-                : '게시글이 없습니다.'
-              }
+                : '게시글이 없습니다.'}
             </Text>
           </View>
         )}

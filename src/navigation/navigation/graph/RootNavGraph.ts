@@ -1,4 +1,5 @@
 import { User } from '@lib/types/User.ts';
+import { Post } from '@lib/types/Post.ts';
 
 type RootNavGraph = {
   Home: undefined;
@@ -7,7 +8,7 @@ type RootNavGraph = {
   Profile: undefined;
   UploadPostScreen: undefined;
   AddMentor: undefined;
-  Question: undefined;
+  Question: { post: Post };
   AddMentorScreen: undefined;
   Login: undefined;
   Chat: { chatRoomId: string; user: User };
