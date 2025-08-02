@@ -20,6 +20,7 @@ import { COLOR } from '@/styles/color/color';
 import { body1 } from '@/styles/typography/body';
 import { title2, title3 } from '@/styles/typography/title';
 import Category from '@/components/community/Category';
+import Header from '@/components/Header';
 
 const { width } = Dimensions.get('window');
 
@@ -105,6 +106,7 @@ const UploadPostScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Header title="글 작성" />
       <ScrollView style={styles.wrapper}>
         <View style={styles.contentWrap}>
           {renderUploadSection()}
