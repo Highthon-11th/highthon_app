@@ -1,59 +1,42 @@
 import {
+  ActivityIndicator,
+  Image,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import searchIcon from '../../assets/search.png';
-import { Image } from 'react-native';
-import CommunityBar from '@/components/community/CommunityBar';
-import { useState } from 'react';
-import Category from '@/components/community/Category';
+import { Suspense, useState } from 'react';
 import Header from '@/components/Header';
+import PostCardList from '@components/post/PostCardList.tsx';
+import TagList from '@components/tag/TagList.tsx';
 
 const CommunityScreen = () => {
-  const categories = ['사회', '꿀팁', '건강', '돈 관리', '취업'];
   const [searchValue, setSearchValue] = useState<string>('');
   return (
     <SafeAreaView style={styles.container}>
       <Header title="게시판" />
-      <ScrollView style={styles.wrapper}>
-        <View style={styles.searchWrap}>
-          <TouchableOpacity>
-            <Image source={searchIcon} style={styles.search} />
-          </TouchableOpacity>
-          <TextInput
-            placeholder="검색"
-            style={styles.searchbar}
-            value={searchValue}
-            onChangeText={setSearchValue}
-          />
-          <View style={{ height: 12 }} />
-        </View>
-        <View style={styles.categoryWrap}>
-          {categories.map(item => (
-            <Category title={`# ${item}`} />
-          ))}
-        </View>
+      <View style={styles.wrapper}>
+        <TouchableOpacity>
+          <Image source={searchIcon} style={styles.search} />
+        </TouchableOpacity>
+        <TextInput
+          placeholder="검색"
+          style={styles.searchbar}
+          value={searchValue}
+          onChangeText={setSearchValue}
+        />
         <View style={{ height: 12 }} />
-        <CommunityBar
-          title="면접 후기 공유합니다"
-          tag={['면접', '대기업']}
-          type="info"
-        />
-        <CommunityBar
-          title="면접 후기 공유합니다"
-          tag={['면접', '대기업']}
-          role="작성자"
-          author="홍길동"
-          date="2025-08-02"
-          view={123}
-          type="question"
-        />
-      </ScrollView>
+        <Suspense fallback={<ActivityIndicator />}>
+          <TagList />
+        </Suspense>
+      </View>
+      <View style={{ height: 10 }} />
+      <Suspense fallback={<ActivityIndicator />}>
+        <PostCardList />
+      </Suspense>
     </SafeAreaView>
   );
 };
@@ -61,9 +44,12 @@ const CommunityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+    paddingVertical: 14,
   },
   wrapper: {
-    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
     paddingHorizontal: 20,
   },
   categoryWrap: {
