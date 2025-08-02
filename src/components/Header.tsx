@@ -91,10 +91,6 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 15,
   },
-  touchableArea: {
-    padding: 5, // 터치 영역을 넓혀줍니다
-    borderRadius: 15, // 둥근 터치 영역
-  },
   hr: {
     width: '100%',
     borderBottomWidth: 1,
