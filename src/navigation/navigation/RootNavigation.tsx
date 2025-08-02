@@ -2,6 +2,9 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootNavGraph } from '@navigation/navigation/graph';
 import HomeScreen from '@screens/HomeScreen.tsx';
+import CommunityScreen from "@screens/CommunityScreen.tsx";
+import ProfileScreen from "@screens/ProfileScreen.tsx";
+import MentoringScreen from "@screens/MentoringScreen.tsx";
 
 declare global {
   namespace ReactNavigation {
@@ -20,9 +23,9 @@ const RootNavigation = () => {
       }}
     >
       <Stack.Screen name={'Home'} component={HomeScreen} />
-      <Stack.Screen name={'Community'} component={HomeScreen} />
-      <Stack.Screen name={'Profile'} component={HomeScreen} />
-      <Stack.Screen name={'Mentoring'} component={HomeScreen} />
+      <Stack.Screen name={'Community'} component={CommunityScreen} />
+      <Stack.Screen name={'Profile'} component={ProfileScreen} />
+      <Stack.Screen name={'Mentoring'} component={MentoringScreen} />
     </Stack.Navigator>
   );
 };
