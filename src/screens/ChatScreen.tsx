@@ -90,6 +90,7 @@ const ChatScreen = ({ route }: Props) => {
           renderItem={({ item }) => <ChatBox data={item} />}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />} // 세로 간격
         />
+        <View style={{ height: 12 }}></View>
 
         <View style={styles.messageInputContainer}>
           <TextInput
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingVertical: 20,
   },
   scrollContent: {
     paddingBottom: 80,
@@ -141,10 +142,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messageInputContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    // position: 'absolute',
+    // bottom: 0,
+    // left: 0,
+    // right: 0,
     flexDirection: 'row',
     alignItems: 'flex-end',
     paddingHorizontal: 20,
