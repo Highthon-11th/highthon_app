@@ -2,6 +2,7 @@ import axios from 'axios';
 import { defaultClient } from '@lib/client/index.ts';
 import { logout } from '@lib/api/auth.ts';
 import { Config } from 'react-native-config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const authClient = axios.create({
   baseURL: Config.PUBLIC_API_URL,
@@ -13,7 +14,7 @@ const authClient = axios.create({
 
 authClient.interceptors.request.use(
   async config => {
-    const accessToken = localStorage.getItem('access');
+    const accessToken = await AsyncStorage.getItem('access');
     if (!accessToken) {
       return config;
     }
@@ -21,7 +22,7 @@ authClient.interceptors.request.use(
     config.headers.Authorization = `Bearer ${accessToken}`;
     return config;
   },
-  () => {},
+  error => Promise.reject(error),
 );
 
 authClient.interceptors.response.use(
@@ -29,11 +30,12 @@ authClient.interceptors.response.use(
   async error => {
     if (error.response?.status === 401) {
       try {
-        await defaultClient.post('/auth/refresh').then(res => {
-          localStorage.setItem('access', res.data.accessToken);
-        });
+        const res = await defaultClient.post('/auth/refresh');
+        await AsyncStorage.setItem('access', res.data.accessToken);
 
-        return authClient(error.config);
+        const originalRequest = error.config;
+        originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
+        return authClient(originalRequest);
       } catch (refreshError) {
         await logout();
         return Promise.reject(refreshError);

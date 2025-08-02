@@ -1,13 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { Image } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import PlusIcon from '../../assets/plusIcon.png';
 import ArrowIcon from '../../assets/arrow_back_ios.png';
 import settingIcon from '../../assets/settings.png';
 import { title1 } from '../styles/typography/title';
-import { login as kakaoLogin } from '@react-native-seoul/kakao-login';
-import { login } from '@lib/api/auth.ts';
 
 interface Props {
   title: string;
@@ -15,7 +12,7 @@ interface Props {
 
 const Header = ({ title }: Props) => {
   const navigation = useNavigation();
-  
+
   // 디버깅용 - title 값 확인
   console.log('Header title:', title);
 
@@ -42,7 +39,7 @@ const Header = ({ title }: Props) => {
     if (title === '글작성' || title === '정보' || title === '멘토 추가') {
       return null; // 아이콘 없음
     }
-    
+
     if (title === 'my page') {
       return (
         <TouchableOpacity
@@ -72,7 +69,7 @@ const Header = ({ title }: Props) => {
       <View style={styles.Wrapper}>
         <View style={styles.arrowBox}>
           {/* 뒤로가기 아이콘은 항상 표시 */}
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleBackPress}
             activeOpacity={0.7}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -89,7 +86,9 @@ const Header = ({ title }: Props) => {
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           style={styles.touchableArea}
         >
-         {title !== '멘토 추가' &&  <Image source={PlusIcon} style={styles.plusIcon} />}
+          {title !== '멘토 추가' && (
+            <Image source={PlusIcon} style={styles.plusIcon} />
+          )}
         </TouchableOpacity>
       </View>
       <View style={styles.hr}></View>
