@@ -2,9 +2,9 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootNavGraph } from '@navigation/navigation/graph';
 import HomeScreen from '@screens/HomeScreen.tsx';
-import CommunityScreen from "@screens/CommunityScreen.tsx";
-import ProfileScreen from "@screens/ProfileScreen.tsx";
-import MentoringScreen from "@screens/MentoringScreen.tsx";
+import CommunityScreen from '@screens/CommunityScreen.tsx';
+import ProfileScreen from '@screens/ProfileScreen.tsx';
+import MentoringScreen from '@screens/MentoringScreen.tsx';
 
 declare global {
   namespace ReactNavigation {
@@ -17,7 +17,7 @@ const Stack = createNativeStackNavigator<RootNavGraph>();
 const RootNavigation = () => {
   return (
     <Stack.Navigator
-      initialRouteName={'Home'}
+      initialRouteName={'Community'}
       screenOptions={{
         headerShown: false,
       }}
