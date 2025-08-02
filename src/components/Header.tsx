@@ -4,6 +4,7 @@ import { Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import PlusIcon from '../../assets/plusIcon.png';
 import ArrowIcon from '../../assets/arrow_back_ios.png';
+import settingIcon from '../../assets/settings.png';
 import { title1 } from '../styles/typography/title';
 
 interface Props {
@@ -12,9 +13,20 @@ interface Props {
 
 const Header = ({ title }: Props) => {
   const navigation = useNavigation();
+  
+  // 디버깅용 - title 값 확인
+  console.log('Header title:', title);
 
   const handlePlusPress = () => {
-    navigation.navigate('AddMentor' as never);
+    if (title === '게시판') {
+      navigation.navigate('UploadPostScreen' as never);
+    } else {
+      navigation.navigate('AddMentor' as never);
+    }
+  };
+
+  const handleSettingPress = () => {
+    navigation.navigate('Settings' as never);
   };
 
   const handleBackPress = () => {
@@ -23,10 +35,41 @@ const Header = ({ title }: Props) => {
     }
   };
 
+  // 우측 아이콘 렌더링 함수
+  const renderRightIcon = () => {
+    if (title === '글작성' || title === '정보' || title === '멘토 추가') {
+      return null; // 아이콘 없음
+    }
+    
+    if (title === 'my page') {
+      return (
+        <TouchableOpacity
+          onPress={handleSettingPress}
+          activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          style={styles.touchableArea}
+        >
+          <Image source={settingIcon} style={styles.settingIcon} />
+        </TouchableOpacity>
+      );
+    }
+    return (
+      <TouchableOpacity
+        onPress={handlePlusPress}
+        activeOpacity={0.7}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        style={styles.touchableArea}
+      >
+        <Image source={PlusIcon} style={styles.plusIcon} />
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.Wrapper}>
         <View style={styles.arrowBox}>
+          {/* 뒤로가기 아이콘은 항상 표시 */}
           <TouchableOpacity 
             onPress={handleBackPress}
             activeOpacity={0.7}
@@ -44,7 +87,7 @@ const Header = ({ title }: Props) => {
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           style={styles.touchableArea}
         >
-          <Image source={PlusIcon} style={styles.plusIcon} />
+         {title !== '멘토 추가' &&  <Image source={PlusIcon} style={styles.plusIcon} />}
         </TouchableOpacity>
       </View>
       <View style={styles.hr}></View>
@@ -84,6 +127,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   plusIcon: {
+    width: 20,
+    height: 20,
+  },
+  settingIcon: {
     width: 20,
     height: 20,
   },
