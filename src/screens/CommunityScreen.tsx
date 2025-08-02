@@ -11,9 +11,11 @@ import searchIcon from '../../assets/search.png';
 import { Image } from 'react-native';
 import Category from '@/components/community/Category';
 import CommunityBar from '@/components/community/CommunityBar';
+import { useState } from 'react';
 
 const CommunityScreen = () => {
   const categories = ['사회', '꿀팁', '건강', '돈 관리', '취업'];
+  const [searchValue, setSearchValue] = useState<string>('');
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.wrapper}>
@@ -21,13 +23,25 @@ const CommunityScreen = () => {
           <TouchableOpacity>
             <Image source={searchIcon} style={styles.search} />
           </TouchableOpacity>
-          <TextInput placeholder="검색" style={styles.searchbar} />
+          <TextInput
+            placeholder="검색"
+            style={styles.searchbar}
+            value={searchValue}
+            onChangeText={setSearchValue}
+          />
+          <View style={{ height: 12 }} />
         </View>
         <View style={styles.categoryWrap}>
           {categories.map(item => (
             <Category title={`# ${item}`} />
           ))}
         </View>
+        <View style={{ height: 12 }} />
+        <CommunityBar
+          title="면접 후기 공유합니다"
+          tag={['면접', '대기업']}
+          type="info"
+        />
         <CommunityBar
           title="면접 후기 공유합니다"
           tag={['면접', '대기업']}
@@ -35,6 +49,7 @@ const CommunityScreen = () => {
           author="홍길동"
           date="2025-08-02"
           view={123}
+          type="question"
         />
       </ScrollView>
     </SafeAreaView>
