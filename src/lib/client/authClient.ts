@@ -4,6 +4,8 @@ import { logout } from '@lib/api/auth.ts';
 import { Config } from 'react-native-config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
+
 const authClient = axios.create({
   baseURL: Config.PUBLIC_API_URL,
   withCredentials: true,
