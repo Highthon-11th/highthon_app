@@ -7,6 +7,7 @@ import ProfileScreen from '@screens/ProfileScreen.tsx';
 import MentoringScreen from '@screens/MentoringScreen.tsx';
 import UploadPostScreen from '@/screens/UploadPostScreen';
 import QuestionScreen from '@/screens/QuestionScreen';
+import ChatScreen from '@/screens/ChatScreen';
 import AddMentorScreen from '@/screens/AddMentor';
 
 declare global {
@@ -20,7 +21,7 @@ const Stack = createNativeStackNavigator<RootNavGraph>();
 const RootNavigation = () => {
   return (
     <Stack.Navigator
-      initialRouteName={'Mentoring'}
+      initialRouteName={'Home'}
       screenOptions={{
         headerShown: false,
       }}
@@ -32,6 +33,7 @@ const RootNavigation = () => {
       <Stack.Screen name={'Question'} component={QuestionScreen} />
       <Stack.Screen name={'UploadPostScreen'} component={UploadPostScreen} />
       <Stack.Screen name={'AddMentor'} component={AddMentorScreen} />
+      <Stack.Screen name={'Chat'} component={ChatScreen} />
     </Stack.Navigator>
   );
 };

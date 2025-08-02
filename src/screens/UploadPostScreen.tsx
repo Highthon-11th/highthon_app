@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import {
+  Dimensions,
+  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -7,37 +9,31 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Image,
-  Dimensions,
 } from 'react-native';
 import {
-  launchImageLibrary,
   ImageLibraryOptions,
+  launchImageLibrary,
   MediaType,
 } from 'react-native-image-picker';
 import searchIcon from '../../assets/camera.png';
 import { COLOR } from '@/styles/color/color';
 import { body1 } from '@/styles/typography/body';
 import { title2, title3 } from '@/styles/typography/title';
-import Category from '@/components/community/Category';
 import Header from '@/components/Header';
+import TagList from '@components/tag/TagList.tsx';
+import { ImageAsset } from '@lib/types/Image.ts';
+import { authClient } from '@lib/client';
+import { login } from '@lib/api/auth.ts';
 
 const { width } = Dimensions.get('window');
 
-// 이미지 타입 정의
-interface ImageAsset {
-  uri: string;
-  fileName?: string;
-  type?: string;
-  fileSize?: number;
-}
-
 const UploadPostScreen = () => {
-  const categories = ['사회', '꿀팁', '건강', '돈 관리', '취업'];
   const [isInfo, setIsInfo] = useState(true);
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [content, setContent] = useState('');
   const [selectedImages, setSelectedImages] = useState<ImageAsset[]>([]);
+
+  const [selectedTags, setSelectedTags] = useState<number[]>([]);
 
   const openGallery = () => {
     const options: ImageLibraryOptions = {
@@ -54,9 +50,8 @@ const UploadPostScreen = () => {
           .filter(asset => asset.uri)
           .map(asset => ({
             uri: asset.uri!,
-            fileName: asset.fileName,
-            type: asset.type,
-            fileSize: asset.fileSize,
+            name: asset.fileName!,
+            type: asset.type!,
           }));
         setSelectedImages(prev => [...prev, ...newImages]);
       }
@@ -158,11 +153,10 @@ const UploadPostScreen = () => {
           <View style={styles.categorySection}>
             <Text style={title2}>해시태그</Text>
             <View style={{ height: 12 }} />
-            <View style={styles.hashtagContainer}>
-              {categories.map((items, index) => (
-                <Category key={index} title={`#${items}`} />
-              ))}
-            </View>
+            <TagList
+              selectedTags={selectedTags}
+              setSelectedTags={setSelectedTags}
+            />
           </View>
 
           <View style={styles.categorySection}>
@@ -180,8 +174,8 @@ const UploadPostScreen = () => {
             <Text style={title2}>내용</Text>
             <View style={{ height: 12 }} />
             <TextInput
-              value={description}
-              onChangeText={setDescription}
+              value={content}
+              onChangeText={setContent}
               placeholder="내용을 입력해주세요."
               style={styles.textContainer}
               multiline={true}
@@ -189,11 +183,37 @@ const UploadPostScreen = () => {
             />
           </View>
         </View>
+      </ScrollView>
+      <View style={styles.wrapper}>
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={async () => {
+            const body = new FormData();
+            body.append('title', title);
+            body.append('content', content);
+            body.append('type', 'INFORMATION');
+            selectedTags.forEach(tag => {
+              body.append(`tagIdList`, tag.toString());
+            });
 
-        <TouchableOpacity style={styles.submitButton}>
+            // body.append('image', selectedImages[0]);
+            console.log('login start');
+
+            await login();
+
+            console.log('login success');
+
+            authClient
+              .postForm('/post/create', body)
+              .then(res => {
+                console.log('res', res.data);
+              })
+              .catch(err => console.error(err));
+          }}
+        >
           <Text style={styles.submitButtonText}>게시하기</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };

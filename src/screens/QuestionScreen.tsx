@@ -3,7 +3,7 @@ import Comment from '@/components/question/Comment';
 import { COLOR } from '@/styles/color/color';
 import { body1, body3 } from '@/styles/typography/body';
 import { title1 } from '@/styles/typography/title';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -13,11 +13,45 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useQuery } from '@tanstack/react-query';
+import postQuery from '@lib/query/postQuery.ts';
 
 const QuestionScreen = () => {
   const [comment, setComment] = useState('');
+  const [communityId, setCommunityId] = useState<string | null>(null);
+  const [currentPost, setCurrentPost] = useState<any>(null);
+
+  // 로컬스토리지에서 communityId 가져오기
+  useEffect(() => {
+    const getCommunityId = async () => {
+      try {
+        const id = await AsyncStorage.getItem('communityId');
+        setCommunityId(id);
+      } catch (error) {
+        console.error('커뮤니티 ID 가져오기 실패:', error);
+      }
+    };
+    getCommunityId();
+  }, []);
+
+  // 게시글 데이터 가져오기
+  const { data: posts = [], isLoading, isError } = useQuery({
+    ...postQuery.list([]), // 모든 게시글 가져오기
+    enabled: !!communityId, // communityId가 있을 때만 실행
+  });
+
+  // communityId와 일치하는 게시글 찾기
+  useEffect(() => {
+    if (posts.length > 0 && communityId) {
+      const foundPost = posts.find(post => post.id === communityId);
+      setCurrentPost(foundPost || null);
+      console.log('찾은 게시글:', foundPost);
+    }
+  }, [posts, communityId]);
 
   const handleSendComment = () => {
     if (comment.trim()) {
@@ -26,6 +60,39 @@ const QuestionScreen = () => {
       setComment('');
     }
   };
+
+  // 날짜 포맷팅 함수
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${month}월 ${day}일`;
+  };
+
+  // 로딩 중
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Header title="정보" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLOR.main} />
+          <Text style={body1}>게시글을 불러오는 중...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // 에러 또는 게시글을 찾을 수 없는 경우
+  if (isError || !currentPost) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Header title="정보" />
+        <View style={styles.errorContainer}>
+          <Text style={body1}>게시글을 찾을 수 없습니다.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -48,32 +115,38 @@ const QuestionScreen = () => {
               }}
             >
               <View style={styles.profile} />
-              <Text style={body3}>*멘토* · 작성자</Text>
+              <Text style={body3}>
+                *{currentPost.authorType === 'MENTOR' ? '멘토' : '멘티'}* · {currentPost.authorName}
+              </Text>
             </View>
             <Text style={title1}>
-              면접관 눈에 무조건 뜨는 면접 서류작성 꿀팁
+              {currentPost.title}
             </Text>
             <View style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-              {['꿀팁', '취업'].map(items => (
-                <Text key={items} style={[body3, { color: COLOR.main }]}>
-                  #{items}
+              {currentPost.tags && currentPost.tags.map((tag: string, index: number) => (
+                <Text key={index} style={[body3, { color: COLOR.main }]}>
+                  #{tag}
                 </Text>
               ))}
             </View>
-            <Text style={body3}> · 12월 10일· 조회 20</Text>
+            <Text style={body3}>
+              · {formatDate(currentPost.createdDate)} · 조회 20
+            </Text>
           </View>
           <View style={styles.contentContainer}>
-            <View
-              style={{
-                width: '100%',
-                backgroundColor: COLOR.stroke,
-                height: 182,
-                borderRadius: 8,
-              }}
-            />
+            {/* 이미지가 있는 경우 표시 */}
+            {currentPost.imageURL && (
+              <View
+                style={{
+                  width: '100%',
+                  backgroundColor: COLOR.stroke,
+                  height: 182,
+                  borderRadius: 8,
+                }}
+              />
+            )}
             <Text style={body1}>
-              면접관의 눈에 띄는 면접 서류를 작성하기 위해서는 최대한 흔한
-              표현을 자제하는 것이 좋습니다.
+              {currentPost.content}
             </Text>
           </View>
           <View>
@@ -130,6 +203,18 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 80,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
   profile: {
     width: 36,
