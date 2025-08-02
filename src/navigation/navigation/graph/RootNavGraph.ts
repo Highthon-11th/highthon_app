@@ -4,6 +4,7 @@ type RootNavGraph = {
   Mentoring: any;
   Profile: undefined;
   UploadPostScreen: undefined;
+  AddMentor: undefined;
 };
 
 export default RootNavGraph;
