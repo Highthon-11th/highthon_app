@@ -9,7 +9,6 @@ import Logo from '../../assets/logo.png';
 
 interface Props {
   title: string;
-
   iconHidden?: boolean; // 아이콘 숨김 여부
 }
 
@@ -36,10 +35,18 @@ const Header = ({ title }: Props) => {
 
   // 우측 아이콘 렌더링 함수
   const renderRightIcon = () => {
-    if (title === '글작성' || title === '정보' || title === '멘토 추가') {
+    // "멘토 [이름]" 형태로 시작하는지 확인
+    const isMentorProfile = title.startsWith('멘토 ');
+    
+    if (
+      title === '글작성' || 
+      title === '정보' || 
+      title === '멘토 추가' ||
+      isMentorProfile // 멘토 프로필 페이지인 경우 아이콘 숨김
+    ) {
       return null; // 아이콘 없음
     }
-
+    
     if (title === 'my page') {
       return (
         <TouchableOpacity
@@ -52,7 +59,7 @@ const Header = ({ title }: Props) => {
         </TouchableOpacity>
       );
     }
-
+    
     return (
       <TouchableOpacity
         onPress={handlePlusPress}
@@ -74,7 +81,7 @@ const Header = ({ title }: Props) => {
         </View>
       );
     }
-
+    
     return (
       <View style={styles.arrowBox}>
         <TouchableOpacity
@@ -94,7 +101,7 @@ const Header = ({ title }: Props) => {
     <View style={styles.container}>
       <View style={styles.Wrapper}>
         {renderLeftSection()}
-
+        
         {/* renderRightIcon 함수 사용 */}
         {renderRightIcon()}
       </View>
@@ -135,7 +142,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   logo: {
-    width: 87, // 로고 크기 조정 (필요에 따라 수정)
+    width: 87,
     height: 32,
     marginRight: 10,
   },
