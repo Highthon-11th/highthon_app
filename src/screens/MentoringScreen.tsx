@@ -1,34 +1,22 @@
-import React from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import React, { Suspense, useEffect } from 'react';
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import Header from '../components/Header';
-import MentorList from '../components/MentorList';
-import { useQuery } from '@tanstack/react-query';
-import { Mentor } from './AddMentor';
-import { defaultClient } from '@/lib/client';
+import firestore from '@react-native-firebase/firestore';
+import MentoringList from '@components/mentoring/MentoringList.tsx';
 
-const fetchMentorList = async (): Promise<Mentor[]> => {
-  const res = await defaultClient(`/mentor/list`);
-  return res.data;
-};
-const HomeScreen = () => {
-  const {
-    data: mentorData = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ['mentor'],
-    queryFn: fetchMentorList,
-    retry: Infinity,
-    retryDelay: 3000,
-    refetchOnMount: true,
-    staleTime: 0,
-  });
-
+const MentoringScreen = () => {
   return (
     <SafeAreaView>
       <Header title="멘토" />
       <View style={styles.container}>
-        <MentorList mentors={mentorData} />
+        <Suspense fallback={<ActivityIndicator />}>
+          <MentoringList />
+        </Suspense>
       </View>
     </SafeAreaView>
   );
@@ -43,4 +31,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default MentoringScreen;

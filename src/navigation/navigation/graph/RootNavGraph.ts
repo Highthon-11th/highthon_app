@@ -7,7 +7,7 @@ type RootNavGraph = {
   AddMentor: undefined;
   Question: undefined;
   AddMentorScreen: undefined;
-  Chat: undefined;
+  Chat: { chatRoomId: string };
 };
 
 export default RootNavGraph;

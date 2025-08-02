@@ -2,7 +2,8 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
-//import RNKakaoLogins
+import Firebase
+
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,8 +20,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let factory = RCTReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()
 
+    FirebaseApp.configure()
     RNKakaoLogins.initialize()
-    
+
+
     reactNativeDelegate = delegate
     reactNativeFactory = factory
 
@@ -34,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     return true
   }
-  
+
   // 추가: - Kakao Login URL Scheme 처리
   func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
       if RNKakaoLogins.isKakaoTalkLoginUrl(url) {

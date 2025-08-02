@@ -5,4 +5,7 @@ export interface User {
   role: string;
   createdDate: string; // ISO 8601 format
   updatedDate: string | null;
+  profileImageUrl: string | null;
+  introduce: string;
+  description: string;
 }

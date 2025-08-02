@@ -14,9 +14,6 @@ interface Props {
 const Header = ({ title }: Props) => {
   const navigation = useNavigation();
 
-  // 디버깅용 - title 값 확인
-  console.log('Header title:', title);
-
   const handlePlusPress = () => {
     if (title === '게시판') {
       navigation.navigate('UploadPostScreen' as never);
@@ -40,7 +37,7 @@ const Header = ({ title }: Props) => {
     if (title === '글작성' || title === '정보' || title === '멘토 추가') {
       return null; // 아이콘 없음
     }
-    
+
     if (title === 'my page') {
       return (
         <TouchableOpacity
@@ -53,7 +50,7 @@ const Header = ({ title }: Props) => {
         </TouchableOpacity>
       );
     }
-    
+
     return (
       <TouchableOpacity
         onPress={handlePlusPress}
@@ -75,7 +72,7 @@ const Header = ({ title }: Props) => {
         </View>
       );
     }
-    
+
     return (
       <View style={styles.arrowBox}>
         <TouchableOpacity
@@ -95,7 +92,7 @@ const Header = ({ title }: Props) => {
     <View style={styles.container}>
       <View style={styles.Wrapper}>
         {renderLeftSection()}
-        
+
         {/* renderRightIcon 함수 사용 */}
         {renderRightIcon()}
       </View>
