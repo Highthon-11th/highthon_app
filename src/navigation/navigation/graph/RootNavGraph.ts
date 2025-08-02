@@ -3,6 +3,7 @@ type RootNavGraph = {
   Community: undefined;
   Mentoring: any;
   Profile: undefined;
+  UploadPostScreen: undefined;
 };
 
 export default RootNavGraph;
