@@ -8,20 +8,27 @@ type Props = {
 
 const Mentor = ({ message, name }: Props) => {
   return (
-    <View style={{ width: '100%', display: 'flex', minHeight: 60 }}>
-      <View style={{ display: 'flex', flexDirection: 'row' }}>
-        <View style={{ width: 40 }} />
-        <Text style={{ fontSize: 8 }}>{name}</Text>
-      </View>
-      <View style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-        <View
-          style={{
-            width: 36,
-            height: 36,
-            backgroundColor: COLOR.stroke,
-            borderRadius: 135135,
-          }}
-        />
+    <View
+      style={{
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        gap: 8,
+      }}
+    >
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          backgroundColor: COLOR.stroke,
+          borderRadius: 135135,
+        }}
+      />
+
+      <View style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <Text style={{ fontSize: 12 }}>{name}</Text>
+
         <Text
           style={{
             paddingHorizontal: 16,

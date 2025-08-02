@@ -9,6 +9,8 @@ import Logo from '../../assets/logo.png';
 
 interface Props {
   title: string;
+
+  iconHidden?: boolean; // 아이콘 숨김 여부
 }
 
 const Header = ({ title }: Props) => {

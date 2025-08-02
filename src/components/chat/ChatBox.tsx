@@ -1,7 +1,7 @@
 import React from 'react';
 import { Message } from '@lib/types/Message.ts';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { getMe } from '@lib/api/auth.ts';
+import { getMe, getUser } from '@lib/api/auth.ts';
 import Mentor from '@components/chat/Mentor.tsx';
 import Me from '@components/chat/Me.tsx';
 
@@ -15,10 +15,15 @@ const ChatBox = ({ data }: Props) => {
     queryFn: getMe,
   });
 
+  const { data: sender } = useSuspenseQuery({
+    queryKey: ['user', data.senderId],
+    queryFn: () => getUser(data.senderId),
+  });
+
   if (data.senderId === user.id) {
     return <Me message={data.message} />;
   } else {
-    return <Mentor message={data.message} name={'djk'} />;
+    return <Mentor message={data.message} name={sender.name} />;
   }
 };
 

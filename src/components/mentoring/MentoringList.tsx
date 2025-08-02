@@ -26,6 +26,7 @@ const chatRoomQuery = queryOptions({
 const MentoringList = () => {
   const { data } = useSuspenseQuery(mentoringQuery);
   const { data: chatRoomList } = useSuspenseQuery(chatRoomQuery);
+
   return (
     <FlatList
       data={data}

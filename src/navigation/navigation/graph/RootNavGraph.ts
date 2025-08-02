@@ -1,3 +1,5 @@
+import { User } from '@lib/types/User.ts';
+
 type RootNavGraph = {
   Home: undefined;
   Community: undefined;
@@ -7,7 +9,7 @@ type RootNavGraph = {
   AddMentor: undefined;
   Question: undefined;
   AddMentorScreen: undefined;
-  Chat: { chatRoomId: string };
+  Chat: { chatRoomId: string; user: User };
 };
 
 export default RootNavGraph;

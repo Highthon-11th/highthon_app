@@ -27,3 +27,9 @@ export const getMe = async () => {
 
   return data;
 };
+
+export const getUser = async (id: string) => {
+  const { data } = await authClient.get<User>(`/user/${id}`);
+
+  return data;
+};

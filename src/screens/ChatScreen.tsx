@@ -22,7 +22,7 @@ import ChatBox from '@components/chat/ChatBox.tsx';
 interface Props extends NativeStackScreenProps<RootNavGraph, 'Chat'> {}
 
 const ChatScreen = ({ route }: Props) => {
-  const { chatRoomId } = route.params;
+  const { chatRoomId, user } = route.params;
   console.log('ChatRoomId:', chatRoomId);
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -79,14 +79,16 @@ const ChatScreen = ({ route }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="누구 멘토" />
+      <Header title={`멘토 ${user.name}`} />
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <FlatList
+          style={styles.wrapper}
           data={messages}
           renderItem={({ item }) => <ChatBox data={item} />}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />} // 세로 간격
         />
 
         <View style={styles.messageInputContainer}>

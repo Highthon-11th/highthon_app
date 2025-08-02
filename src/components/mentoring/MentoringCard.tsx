@@ -12,12 +12,13 @@ interface Props {
 
 const MentoringCard = ({ data, chatRoomId }: Props) => {
   const navgation = useNavigation();
+
   return (
     <TouchableOpacity
       key={data.id}
       style={styles.card}
       onPress={() => {
-        navgation.navigate('Chat', { chatRoomId });
+        navgation.navigate('Chat', { chatRoomId, user: data });
       }}
     >
       <View style={styles.imageBox}>
