@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import {
+  Dimensions,
+  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -7,20 +9,18 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Image,
-  Dimensions,
 } from 'react-native';
 import {
-  launchImageLibrary,
   ImageLibraryOptions,
+  launchImageLibrary,
   MediaType,
 } from 'react-native-image-picker';
 import searchIcon from '../../assets/camera.png';
 import { COLOR } from '@/styles/color/color';
 import { body1 } from '@/styles/typography/body';
 import { title2, title3 } from '@/styles/typography/title';
-import Category from '@/components/community/Category';
 import Header from '@/components/Header';
+import TagChip from '@components/tag/TagChip.tsx';
 
 const { width } = Dimensions.get('window');
 
@@ -160,7 +160,12 @@ const UploadPostScreen = () => {
             <View style={{ height: 12 }} />
             <View style={styles.hashtagContainer}>
               {categories.map((items, index) => (
-                <Category key={index} title={`#${items}`} />
+                <TagChip
+                  key={index}
+                  data={{ id: 0, label: `#${items}` }}
+                  selected={false}
+                  onPress={() => {}}
+                />
               ))}
             </View>
           </View>
