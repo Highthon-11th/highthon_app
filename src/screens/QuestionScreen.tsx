@@ -3,29 +3,25 @@ import Comment from '@/components/question/Comment';
 import { COLOR } from '@/styles/color/color';
 import { body1, body3 } from '@/styles/typography/body';
 import { title1 } from '@/styles/typography/title';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
-  View,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-  Image,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useQuery } from '@tanstack/react-query';
-import postQuery from '@lib/query/postQuery.ts';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootNavGraph } from '@navigation/navigation/graph';
 
 interface Props extends NativeStackScreenProps<RootNavGraph, 'Question'> {}
 
-const QuestionScreen = ({ navigation, route }: Props) => {
+const QuestionScreen = ({ route }: Props) => {
   const [comment, setComment] = useState('');
 
   const { post } = route.params;
