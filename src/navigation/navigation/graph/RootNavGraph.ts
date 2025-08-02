@@ -6,6 +6,7 @@ type RootNavGraph = {
   UploadPostScreen: undefined;
   AddMentor: undefined;
   Question: undefined;
+  AddMentorScreen: undefined;
 };
 
 export default RootNavGraph;

@@ -44,12 +44,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: 74,
+    // width: 74,
     height: 24,
   },
   arrowIcon: {
     width: 9,
     height: 16,
+    marginRight: 10,
   },
   plusIcon: {
     width: 20,
