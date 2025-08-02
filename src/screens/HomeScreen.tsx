@@ -9,9 +9,12 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { defaultClient } from '@/lib/client';
+import postQuery from '@lib/query/postQuery.ts';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -25,21 +28,27 @@ interface Mentor {
 interface Post {
   id: string;
   title: string;
-  author: string;
-  date: string;
-  views: number;
+  content: string;
+  type: string;
+  createdDate: string;
+  updatedDate: string;
+  imageURL?: string;
   tags: string[];
+  authorId: string;
+  authorName: string;
+  authorType: string;
 }
 
 const fetchMentorList = async (): Promise<Mentor[]> => {
   const res = await defaultClient(`/mentor/list`);
   return res.data;
 };
+
 const MentorMenteeScreen = () => {
   const {
     data: mentorData = [],
-    isLoading,
-    isError,
+    isLoading: mentorLoading,
+    isError: mentorError,
   } = useQuery({
     queryKey: ['mentor'],
     queryFn: fetchMentorList,
@@ -48,121 +57,38 @@ const MentorMenteeScreen = () => {
     refetchOnMount: true,
     staleTime: 0,
   });
+
+  const {
+    data: postsData = [],
+    isLoading: postsLoading,
+    isError: postsError,
+  } = useQuery({
+    ...postQuery.list([]), // 모든 게시글 가져오기
+  });
+
   const navigation = useNavigation();
-  const [mentors, setMentors] = useState<Mentor[]>([]);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [allPosts, setAllPosts] = useState<Post[]>([]); // 전체 게시글 저장
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+
+  // 태그 필터링
   useEffect(() => {
-    // API 호출 부분 - 실제 서버 연동 시 여기서 fetch 사용
-    fetchMentors();
-    fetchPosts();
-  }, []);
-
-  // 선택된 태그가 변경될 때마다 게시글 필터링
-  useEffect(() => {
-    filterPosts();
-  }, [selectedTags, allPosts]);
-
-  const fetchMentors = async () => {
-    try {
-      // const response = await fetch('YOUR_API_ENDPOINT/mentors');
-      // const data = await response.json();
-      // setMentors(data);
-
-      // 임시 데이터
-      setMentors([
-        {
-          id: '1',
-          name: '누구 멘토',
-          description: '멘토 소개말',
-          isRecommended: true,
-        },
-        { id: '2', name: '누구 멘토', description: '멘토 소개말' },
-      ]);
-    } catch (error) {
-      console.error('멘토 데이터 로딩 실패:', error);
-    }
-  };
-
-  const fetchPosts = async () => {
-    try {
-      // const response = await fetch('YOUR_API_ENDPOINT/posts');
-      // const data = await response.json();
-      // setAllPosts(data);
-      // setPosts(data);
-
-      // 임시 데이터 - 다양한 태그로 구성
-      const mockPosts = [
-        {
-          id: '1',
-          title: '면접 합격 하려면 어떻게 해야 되나요?',
-          author: '멘티',
-          date: '12월 10일',
-          views: 20,
-          tags: ['#꿀팁', '#취업'],
-        },
-        {
-          id: '2',
-          title: '건강한 생활습관 만들기',
-          author: '멘티',
-          date: '12월 9일',
-          views: 15,
-          tags: ['#건강', '#꿀팁'],
-        },
-        {
-          id: '3',
-          title: '사회초년생 돈 관리 팁',
-          author: '멘토',
-          date: '12월 8일',
-          views: 30,
-          tags: ['#돈 관리', '#사회'],
-        },
-        {
-          id: '4',
-          title: '취업 준비 로드맵',
-          author: '멘토',
-          date: '12월 7일',
-          views: 25,
-          tags: ['#취업', '#사회'],
-        },
-        {
-          id: '5',
-          title: '스트레스 관리하는 법',
-          author: '멘티',
-          date: '12월 6일',
-          views: 18,
-          tags: ['#건강'],
-        },
-      ];
-
-      setAllPosts(mockPosts);
-      setPosts(mockPosts);
-    } catch (error) {
-      console.error('게시글 데이터 로딩 실패:', error);
-    }
-  };
-
-  const filterPosts = () => {
     if (selectedTags.length === 0) {
-      // 선택된 태그가 없으면 모든 게시글 표시
-      setPosts(allPosts);
+      setFilteredPosts(postsData);
     } else {
-      // 선택된 태그와 일치하는 게시글만 필터링
-      const filteredPosts = allPosts.filter(post =>
-        selectedTags.some(selectedTag => post.tags.includes(selectedTag)),
+      const filtered = postsData.filter(post =>
+        selectedTags.some(selectedTag => 
+          post.tags.some(postTag => postTag.includes(selectedTag.replace('#', '')))
+        )
       );
-      setPosts(filteredPosts);
+      setFilteredPosts(filtered);
     }
-  };
+  }, [selectedTags, postsData]);
 
   const handleTagPress = (tag: string) => {
     setSelectedTags(prev => {
       if (prev.includes(tag)) {
-        // 이미 선택된 태그라면 제거
         return prev.filter(t => t !== tag);
       } else {
-        // 새로운 태그라면 추가
         return [...prev, tag];
       }
     });
@@ -173,25 +99,33 @@ const MentorMenteeScreen = () => {
   };
 
   const handleMentorPress = (mentorId: string) => {
-    // 멘토 상세 화면으로 네비게이션
-    // navigation.navigate('MentorDetail', { mentorId });
     console.log('멘토 선택:', mentorId);
   };
 
-  const handlePostPress = (postId: string) => {
-    // 게시글 상세 화면으로 네비게이션
-    // navigation.navigate('PostDetail', { postId });
-    console.log('게시글 선택:', postId);
+  // 게시글 클릭 핸들러
+  const handlePostPress = async (postId: string) => {
+    try {
+      await AsyncStorage.setItem('communityId', postId);
+      navigation.navigate('Question' as never);
+    } catch (error) {
+      console.error('에러 발생:', error);
+    }
   };
 
-  // 멘토 매니저 가기 버튼 핸들러
   const handleMentorManagerPress = () => {
     navigation.navigate('Mentoring' as never);
   };
 
-  // 더보기 버튼 핸들러
   const handleMorePress = () => {
     navigation.navigate('Community' as never);
+  };
+
+  // 날짜 포맷팅 함수
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${month}월 ${day}일`;
   };
 
   const MentorCard = ({ mentor }: { mentor: Mentor }) => (
@@ -221,7 +155,9 @@ const MentorMenteeScreen = () => {
       onPress={() => handlePostPress(post.id)}
     >
       <View style={styles.categoryBadge}>
-        <Text style={styles.categoryText}>질문</Text>
+        <Text style={styles.categoryText}>
+          {post.type === 'INFORMATION' ? '정보' : '질문'}
+        </Text>
       </View>
       <Text style={styles.postTitle}>{post.title}</Text>
       <View style={styles.tagContainer}>
@@ -230,16 +166,18 @@ const MentorMenteeScreen = () => {
             key={i}
             style={[
               styles.postTag,
-              selectedTags.includes(tag) && styles.highlightedTag,
+              selectedTags.some(selectedTag => 
+                tag.includes(selectedTag.replace('#', ''))
+              ) && styles.highlightedTag,
             ]}
           >
-            {tag}
+            #{tag}
           </Text>
         ))}
       </View>
       <View style={styles.postFooter}>
         <Text style={styles.postMeta}>
-          *{post.author} · 작성자 · {post.date} · 조회 {post.views}
+          *{post.authorName} · 작성자 · {formatDate(post.createdDate)} · 조회 20
         </Text>
       </View>
     </TouchableOpacity>
@@ -248,7 +186,7 @@ const MentorMenteeScreen = () => {
   const tags = ['#사회', '#꿀팁', '#건강', '#돈 관리', '#취업'];
 
   // 표시할 게시글을 최대 2개로 제한
-  const displayedPosts = posts.slice(0, 2);
+  const displayedPosts = filteredPosts.slice(0, 2);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -260,9 +198,13 @@ const MentorMenteeScreen = () => {
       >
         {/* 추천 멘토 섹션 */}
         <Text style={styles.sectionTitle}>추천 멘토</Text>
-        {mentorData.map(mentor => (
-          <MentorCard key={mentor.id} mentor={mentor} />
-        ))}
+        {mentorLoading ? (
+          <ActivityIndicator size="small" color="#6C5CE7" />
+        ) : (
+          mentorData.map(mentor => (
+            <MentorCard key={mentor.id} mentor={mentor} />
+          ))
+        )}
 
         <TouchableOpacity
           style={styles.button}
@@ -314,18 +256,23 @@ const MentorMenteeScreen = () => {
         {/* 필터링된 게시글 표시 */}
         {selectedTags.length > 0 && (
           <Text style={styles.filterInfo}>
-            {selectedTags.join(', ')} 태그로 필터링된 게시글 ({posts.length}개
-            중 {Math.min(posts.length, 2)}개 표시)
+            {selectedTags.join(', ')} 태그로 필터링된 게시글 ({filteredPosts.length}개
+            중 {Math.min(filteredPosts.length, 2)}개 표시)
           </Text>
         )}
 
-        {/* 최대 2개의 게시글만 표시 */}
-        {displayedPosts.length > 0 ? (
+        {/* 게시글 표시 */}
+        {postsLoading ? (
+          <ActivityIndicator size="small" color="#6C5CE7" />
+        ) : displayedPosts.length > 0 ? (
           displayedPosts.map(post => <PostCard key={post.id} post={post} />)
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
-              선택한 태그에 해당하는 게시글이 없습니다.
+              {selectedTags.length > 0 
+                ? '선택한 태그에 해당하는 게시글이 없습니다.'
+                : '게시글이 없습니다.'
+              }
             </Text>
           </View>
         )}
