@@ -14,28 +14,33 @@ import PostCardList from '@components/post/PostCardList.tsx';
 import TagList from '@components/tag/TagList.tsx';
 
 const CommunityScreen = () => {
-  const [searchValue, setSearchValue] = useState<string>('');
+  // const [searchValue, setSearchValue] = useState<string>('');
+  const [selectedTags, setSelectedTags] = useState<number[]>([]);
+
   return (
     <SafeAreaView style={styles.container}>
       <Header title="게시판" />
       <View style={styles.wrapper}>
-        <TouchableOpacity>
-          <Image source={searchIcon} style={styles.search} />
-        </TouchableOpacity>
-        <TextInput
-          placeholder="검색"
-          style={styles.searchbar}
-          value={searchValue}
-          onChangeText={setSearchValue}
-        />
+        {/*<TouchableOpacity>*/}
+        {/*  <Image source={searchIcon} style={styles.search} />*/}
+        {/*</TouchableOpacity>*/}
+        {/*<TextInput*/}
+        {/*  placeholder="검색"*/}
+        {/*  style={styles.searchbar}*/}
+        {/*  value={searchValue}*/}
+        {/*  onChangeText={setSearchValue}*/}
+        {/*/>*/}
         <View style={{ height: 12 }} />
         <Suspense fallback={<ActivityIndicator />}>
-          <TagList />
+          <TagList
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+          />
         </Suspense>
       </View>
       <View style={{ height: 10 }} />
       <Suspense fallback={<ActivityIndicator />}>
-        <PostCardList />
+        <PostCardList selectedTags={selectedTags} />
       </Suspense>
     </SafeAreaView>
   );
@@ -45,7 +50,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingVertical: 14,
+    paddingVertical: 20,
+    display: 'flex',
+    flexDirection: 'column',
   },
   wrapper: {
     display: 'flex',

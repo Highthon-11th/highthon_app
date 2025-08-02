@@ -1,29 +1,32 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { FlatList, View } from 'react-native';
 import TagChip from '@components/tag/TagChip.tsx';
-import { Tag } from '@lib/types/Post.ts';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import tagQuery from '@lib/query/tagQuery.ts';
 
-const TagList = () => {
-  const data: Tag[] = [
-    {
-      id: 1,
-      label: '보험',
-    },
-    {
-      id: 2,
-      label: '알바',
-    },
-    {
-      id: 3,
-      label: '자취',
-    },
-  ];
+interface TagListProps {
+  selectedTags: number[];
+  setSelectedTags: Dispatch<SetStateAction<number[]>>;
+}
+
+const TagList = ({ selectedTags, setSelectedTags }: TagListProps) => {
+  const { data } = useSuspenseQuery(tagQuery.list);
   return (
     <FlatList
       horizontal
       data={data}
       renderItem={({ item }) => (
-        <TagChip data={item} onPress={() => {}} selected={false} />
+        <TagChip
+          data={item}
+          onPress={() => {
+            if (selectedTags.includes(item.id)) {
+              setSelectedTags(selectedTags.filter(tagId => tagId !== item.id));
+            } else {
+              setSelectedTags([...selectedTags, item.id]);
+            }
+          }}
+          selected={selectedTags.includes(item.id)}
+        />
       )}
       ItemSeparatorComponent={() => <View style={{ width: 8 }} />} // 세로 간격
     />

@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import PlusIcon from '../../assets/plusIcon.png';
 import ArrowIcon from '../../assets/arrow_back_ios.png';
 import { title1 } from '../styles/typography/title';
+import { login as kakaoLogin } from '@react-native-seoul/kakao-login';
+import { login } from '@lib/api/auth.ts';
 
 interface Props {
   title: string;
@@ -13,8 +15,12 @@ interface Props {
 const Header = ({ title }: Props) => {
   const navigation = useNavigation();
 
-  const handlePlusPress = () => {
-    navigation.navigate('AddMentor' as never);
+  const handlePlusPress = async () => {
+    // navigation.navigate('AddMentor' as never);
+
+    const token = await kakaoLogin();
+
+    login(token.idToken).then(res => {});
   };
 
   const handleBackPress = () => {
@@ -27,7 +33,7 @@ const Header = ({ title }: Props) => {
     <View style={styles.container}>
       <View style={styles.Wrapper}>
         <View style={styles.arrowBox}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleBackPress}
             activeOpacity={0.7}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -37,8 +43,8 @@ const Header = ({ title }: Props) => {
           </TouchableOpacity>
           <Text style={title1}>{title}</Text>
         </View>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           onPress={handlePlusPress}
           activeOpacity={0.7}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
