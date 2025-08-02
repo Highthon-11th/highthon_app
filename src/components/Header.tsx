@@ -6,6 +6,7 @@ import ArrowIcon from '../../assets/arrow_back_ios.png';
 import settingIcon from '../../assets/settings.png';
 import { title1 } from '../styles/typography/title';
 import Logo from '../../assets/logo.png';
+import Profile from '../../assets/profile.png';
 
 interface Props {
   title: string;
@@ -27,6 +28,11 @@ const Header = ({ title }: Props) => {
     navigation.navigate('Settings' as never);
   };
 
+  const handleProfilePress = () => {
+    // 프로필 화면으로 네비게이트 (필요에 따라 수정)
+    navigation.navigate('Profile' as never);
+  };
+
   const handleBackPress = () => {
     if (navigation.canGoBack()) {
       navigation.goBack();
@@ -45,6 +51,20 @@ const Header = ({ title }: Props) => {
       isMentorProfile // 멘토 프로필 페이지인 경우 아이콘 숨김
     ) {
       return null; // 아이콘 없음
+    }
+    
+    // 홈일 때는 프로필 아이콘 표시
+    if (title === '홈') {
+      return (
+        <TouchableOpacity
+          onPress={handleProfilePress}
+          activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          style={styles.touchableArea}
+        >
+          <Image source={Profile} style={styles.profileIcon} />
+        </TouchableOpacity>
+      );
     }
     
     if (title === 'my page') {
@@ -145,6 +165,10 @@ const styles = StyleSheet.create({
     width: 87,
     height: 32,
     marginRight: 10,
+  },
+  profileIcon: {
+    width: 20,
+    height: 20,
   },
   backButton: {
     padding: 5,
