@@ -1,10 +1,9 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Image } from 'react-native';
-import PlusIcon from '../../assets/plusIcon.png'
+import PlusIcon from '../../assets/plusIcon.png';
 import ArrowIcon from '../../assets/arrow_back_ios.png';
-import { title3 } from '../styles/typography/title';
-import { COLOR } from '../styles/color/color'
+import { title1 } from '../styles/typography/title';
 
 interface Props {
   title: string;
@@ -16,9 +15,9 @@ const Header = ({ title }: Props) => {
       <View style={styles.Wrapper}>
         <View style={styles.arrowBox}>
           <Image source={ArrowIcon} style={styles.arrowIcon} />
-          <Text style={title3}>{title}</Text>
+          <Text style={title1}>{title}</Text>
         </View>
-        
+
         <Image source={PlusIcon} style={styles.plusIcon} />
       </View>
       <View style={styles.hr}></View>
@@ -54,14 +53,14 @@ const styles = StyleSheet.create({
   },
   plusIcon: {
     width: 20,
-    height: 20
+    height: 20,
   },
   hr: {
     width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#D9D9D9',
-    marginTop: 10,  
-  }
+    marginTop: 10,
+  },
 });
 
 export default Header;

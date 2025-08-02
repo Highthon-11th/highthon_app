@@ -12,12 +12,14 @@ import { Image } from 'react-native';
 import CommunityBar from '@/components/community/CommunityBar';
 import { useState } from 'react';
 import Category from '@/components/community/Category';
+import Header from '@/components/Header';
 
 const CommunityScreen = () => {
   const categories = ['사회', '꿀팁', '건강', '돈 관리', '취업'];
   const [searchValue, setSearchValue] = useState<string>('');
   return (
     <SafeAreaView style={styles.container}>
+      <Header title="게시판" />
       <ScrollView style={styles.wrapper}>
         <View style={styles.searchWrap}>
           <TouchableOpacity>
