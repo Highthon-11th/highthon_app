@@ -10,6 +10,8 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { defaultClient } from '@/lib/client';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -29,13 +31,28 @@ interface Post {
   tags: string[];
 }
 
+const fetchMentorList = async (): Promise<Mentor[]> => {
+  const res = await defaultClient(`/mentor/list`);
+  return res.data;
+};
 const MentorMenteeScreen = () => {
+  const {
+    data: mentorData = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['mentor'],
+    queryFn: fetchMentorList,
+    retry: Infinity,
+    retryDelay: 3000,
+    refetchOnMount: true,
+    staleTime: 0,
+  });
   const navigation = useNavigation();
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [allPosts, setAllPosts] = useState<Post[]>([]); // 전체 게시글 저장
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
   useEffect(() => {
     // API 호출 부분 - 실제 서버 연동 시 여기서 fetch 사용
     fetchMentors();
@@ -52,10 +69,15 @@ const MentorMenteeScreen = () => {
       // const response = await fetch('YOUR_API_ENDPOINT/mentors');
       // const data = await response.json();
       // setMentors(data);
-      
+
       // 임시 데이터
       setMentors([
-        { id: '1', name: '누구 멘토', description: '멘토 소개말', isRecommended: true },
+        {
+          id: '1',
+          name: '누구 멘토',
+          description: '멘토 소개말',
+          isRecommended: true,
+        },
         { id: '2', name: '누구 멘토', description: '멘토 소개말' },
       ]);
     } catch (error) {
@@ -69,16 +91,51 @@ const MentorMenteeScreen = () => {
       // const data = await response.json();
       // setAllPosts(data);
       // setPosts(data);
-      
+
       // 임시 데이터 - 다양한 태그로 구성
       const mockPosts = [
-        { id: '1', title: '면접 합격 하려면 어떻게 해야 되나요?', author: '멘티', date: '12월 10일', views: 20, tags: ['#꿀팁', '#취업'] },
-        { id: '2', title: '건강한 생활습관 만들기', author: '멘티', date: '12월 9일', views: 15, tags: ['#건강', '#꿀팁'] },
-        { id: '3', title: '사회초년생 돈 관리 팁', author: '멘토', date: '12월 8일', views: 30, tags: ['#돈 관리', '#사회'] },
-        { id: '4', title: '취업 준비 로드맵', author: '멘토', date: '12월 7일', views: 25, tags: ['#취업', '#사회'] },
-        { id: '5', title: '스트레스 관리하는 법', author: '멘티', date: '12월 6일', views: 18, tags: ['#건강'] },
+        {
+          id: '1',
+          title: '면접 합격 하려면 어떻게 해야 되나요?',
+          author: '멘티',
+          date: '12월 10일',
+          views: 20,
+          tags: ['#꿀팁', '#취업'],
+        },
+        {
+          id: '2',
+          title: '건강한 생활습관 만들기',
+          author: '멘티',
+          date: '12월 9일',
+          views: 15,
+          tags: ['#건강', '#꿀팁'],
+        },
+        {
+          id: '3',
+          title: '사회초년생 돈 관리 팁',
+          author: '멘토',
+          date: '12월 8일',
+          views: 30,
+          tags: ['#돈 관리', '#사회'],
+        },
+        {
+          id: '4',
+          title: '취업 준비 로드맵',
+          author: '멘토',
+          date: '12월 7일',
+          views: 25,
+          tags: ['#취업', '#사회'],
+        },
+        {
+          id: '5',
+          title: '스트레스 관리하는 법',
+          author: '멘티',
+          date: '12월 6일',
+          views: 18,
+          tags: ['#건강'],
+        },
       ];
-      
+
       setAllPosts(mockPosts);
       setPosts(mockPosts);
     } catch (error) {
@@ -92,10 +149,8 @@ const MentorMenteeScreen = () => {
       setPosts(allPosts);
     } else {
       // 선택된 태그와 일치하는 게시글만 필터링
-      const filteredPosts = allPosts.filter(post => 
-        selectedTags.some(selectedTag => 
-          post.tags.includes(selectedTag)
-        )
+      const filteredPosts = allPosts.filter(post =>
+        selectedTags.some(selectedTag => post.tags.includes(selectedTag)),
       );
       setPosts(filteredPosts);
     }
@@ -140,8 +195,11 @@ const MentorMenteeScreen = () => {
   };
 
   const MentorCard = ({ mentor }: { mentor: Mentor }) => (
-    <TouchableOpacity 
-      style={[styles.mentorCard, mentor.isRecommended && styles.recommendedCard]}
+    <TouchableOpacity
+      style={[
+        styles.mentorCard,
+        mentor.isRecommended && styles.recommendedCard,
+      ]}
       onPress={() => handleMentorPress(mentor.id)}
     >
       <View style={styles.profileImage} />
@@ -158,18 +216,21 @@ const MentorMenteeScreen = () => {
   );
 
   const PostCard = ({ post }: { post: Post }) => (
-    <TouchableOpacity style={styles.postCard} onPress={() => handlePostPress(post.id)}>
+    <TouchableOpacity
+      style={styles.postCard}
+      onPress={() => handlePostPress(post.id)}
+    >
       <View style={styles.categoryBadge}>
         <Text style={styles.categoryText}>질문</Text>
       </View>
       <Text style={styles.postTitle}>{post.title}</Text>
       <View style={styles.tagContainer}>
         {post.tags.map((tag, i) => (
-          <Text 
-            key={i} 
+          <Text
+            key={i}
             style={[
               styles.postTag,
-              selectedTags.includes(tag) && styles.highlightedTag
+              selectedTags.includes(tag) && styles.highlightedTag,
             ]}
           >
             {tag}
@@ -191,18 +252,22 @@ const MentorMenteeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title='홈' />
-      <ScrollView 
-        style={styles.content} 
+      <Header title="홈" />
+      <ScrollView
+        style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        
         {/* 추천 멘토 섹션 */}
         <Text style={styles.sectionTitle}>추천 멘토</Text>
-        {mentors.map(mentor => <MentorCard key={mentor.id} mentor={mentor} />)}
-        
-        <TouchableOpacity style={styles.button} onPress={handleMentorManagerPress}>
+        {mentorData.map(mentor => (
+          <MentorCard key={mentor.id} mentor={mentor} />
+        ))}
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleMentorManagerPress}
+        >
           <Text style={styles.buttonText}>멘토 매니저 가기</Text>
         </TouchableOpacity>
 
@@ -210,14 +275,17 @@ const MentorMenteeScreen = () => {
         <View style={styles.communityHeader}>
           <Text style={styles.sectionTitle}>커뮤니티</Text>
           {selectedTags.length > 0 && (
-            <TouchableOpacity onPress={clearAllFilters} style={styles.clearButton}>
+            <TouchableOpacity
+              onPress={clearAllFilters}
+              style={styles.clearButton}
+            >
               <Text style={styles.clearButtonText}>전체보기</Text>
             </TouchableOpacity>
           )}
         </View>
-        
-        <ScrollView 
-          horizontal 
+
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.tagScrollContainer}
           contentContainerStyle={styles.tagScrollContent}
@@ -228,13 +296,15 @@ const MentorMenteeScreen = () => {
               onPress={() => handleTagPress(tag)}
               style={[
                 styles.tagButton,
-                selectedTags.includes(tag) && styles.selectedTagButton
+                selectedTags.includes(tag) && styles.selectedTagButton,
               ]}
             >
-              <Text style={[
-                styles.tagButtonText,
-                selectedTags.includes(tag) && styles.selectedTagText
-              ]}>
+              <Text
+                style={[
+                  styles.tagButtonText,
+                  selectedTags.includes(tag) && styles.selectedTagText,
+                ]}
+              >
                 {tag}
               </Text>
             </TouchableOpacity>
@@ -244,7 +314,8 @@ const MentorMenteeScreen = () => {
         {/* 필터링된 게시글 표시 */}
         {selectedTags.length > 0 && (
           <Text style={styles.filterInfo}>
-            {selectedTags.join(', ')} 태그로 필터링된 게시글 ({posts.length}개 중 {Math.min(posts.length, 2)}개 표시)
+            {selectedTags.join(', ')} 태그로 필터링된 게시글 ({posts.length}개
+            중 {Math.min(posts.length, 2)}개 표시)
           </Text>
         )}
 
@@ -253,10 +324,12 @@ const MentorMenteeScreen = () => {
           displayedPosts.map(post => <PostCard key={post.id} post={post} />)
         ) : (
           <View style={styles.noResultsContainer}>
-            <Text style={styles.noResultsText}>선택한 태그에 해당하는 게시글이 없습니다.</Text>
+            <Text style={styles.noResultsText}>
+              선택한 태그에 해당하는 게시글이 없습니다.
+            </Text>
           </View>
         )}
-        
+
         <TouchableOpacity style={styles.button} onPress={handleMorePress}>
           <Text style={styles.buttonText}>더보기</Text>
         </TouchableOpacity>

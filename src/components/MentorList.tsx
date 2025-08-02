@@ -2,27 +2,19 @@ import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { body3, body2 } from '../styles/typography/body';
 import { title3 } from '../styles/typography/title';
+import { Mentor } from '@/screens/AddMentor';
 
-interface Mentor {
-  id: number;
-  name: string;
-  time: string;
-  description: string;
-  image: string | null;
-}
-
-interface Props {
-  mentors: Mentor[];
-}
-
-const MentorList = ({ mentors }: Props) => {
+const MentorList: React.FC<{ mentors: Mentor[] }> = ({ mentors }) => {
   return (
     <View style={styles.wrapper}>
-      {mentors.map((mentor) => (
+      {mentors.map(mentor => (
         <View key={mentor.id} style={styles.card}>
           <View style={styles.imageBox}>
-            {mentor.image ? (
-              <Image source={{ uri: mentor.image }} style={styles.profileImage} />
+            {mentor.profileImageUrl ? (
+              <Image
+                source={{ uri: mentor.profileImageUrl }}
+                style={styles.profileImage}
+              />
             ) : (
               <View style={styles.placeholderImage} />
             )}
@@ -30,10 +22,11 @@ const MentorList = ({ mentors }: Props) => {
           <View style={styles.cardContent}>
             <View style={styles.cardTopBox}>
               <Text style={title3}>{mentor.name}</Text>
-              <Text style={[body3, {color:'#747474'}]}>{mentor.time}</Text>
             </View>
             <View style={styles.cardBottomBox}>
-              <Text style={[body2, {color:'#747474'}]}>{mentor.description}</Text>
+              <Text style={[body2, { color: '#747474' }]}>
+                "안녕하세요 당신의 멘토입니다."
+              </Text>
             </View>
           </View>
         </View>
@@ -47,6 +40,7 @@ const styles = StyleSheet.create({
     width: 362,
     height: '100%',
     marginTop: 20,
+    
   },
   card: {
     display: 'flex',
@@ -93,7 +87,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     height: 17,
     width: 286,
-  }
+  },
 });
 
 export default MentorList;
