@@ -195,7 +195,7 @@ const UploadPostScreen = () => {
             const body = new FormData();
             body.append('title', title);
             body.append('content', content);
-            body.append('type', 'INFORMATION');
+            body.append('type', isInfo ? 'INFORMATION' : 'QUESTION');
             selectedTags.forEach(tag => {
               body.append(`tagIdList`, tag.toString());
             });
