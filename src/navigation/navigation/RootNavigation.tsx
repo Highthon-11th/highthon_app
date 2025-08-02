@@ -21,7 +21,7 @@ const Stack = createNativeStackNavigator<RootNavGraph>();
 const RootNavigation = () => {
   return (
     <Stack.Navigator
-      initialRouteName={'Question'}
+      initialRouteName={'Mentoring'}
       screenOptions={{
         headerShown: false,
       }}
