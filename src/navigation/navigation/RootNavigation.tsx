@@ -18,7 +18,6 @@ const Stack = createNativeStackNavigator<RootNavGraph>();
 const RootNavigation = () => {
   return (
     <Stack.Navigator
-      initialRouteName={'Community'}
       initialRouteName={'Profile'}
       screenOptions={{
         headerShown: false,
