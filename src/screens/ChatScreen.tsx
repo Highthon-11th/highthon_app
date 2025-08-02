@@ -2,6 +2,7 @@ import Me from '@/components/chat/Me';
 import Mentor from '@/components/chat/Mentor';
 import Header from '@/components/Header';
 import { COLOR } from '@/styles/color/color';
+import { useRoute } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
   SafeAreaView,
@@ -16,6 +17,8 @@ import {
 } from 'react-native';
 
 const ChatScreen = () => {
+  const route = useRoute();
+  const params = route.params;
   const [message, setMessage] = useState('');
 
   const handleSendMessage = () => {
