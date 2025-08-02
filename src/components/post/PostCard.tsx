@@ -6,6 +6,7 @@ import { Post } from '@lib/types/Post.ts';
 
 type Props = {
   data: Post;
+  onPress: () => void;
 };
 
 const formater = new Intl.DateTimeFormat('ko', {
@@ -14,9 +15,9 @@ const formater = new Intl.DateTimeFormat('ko', {
   timeZone: 'Asia/Seoul',
 });
 
-const PostCard = ({ data }: Props) => {
+const PostCard = ({ data, onPress }: Props) => {
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={onPress}>
       <View style={styles.container}>
         <View style={styles.titleContainer}>
           <Text
