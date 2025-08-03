@@ -6,16 +6,15 @@ import ArrowIcon from '../../assets/arrow_back_ios.png';
 import settingIcon from '../../assets/settings.png';
 import { title1 } from '../styles/typography/title';
 import Logo from '../../assets/logo.png';
+import Profile from '../../assets/profile.png';
 
 interface Props {
   title: string;
+  iconHidden?: boolean; // 아이콘 숨김 여부
 }
 
 const Header = ({ title }: Props) => {
   const navigation = useNavigation();
-
-  // 디버깅용 - title 값 확인
-  console.log('Header title:', title);
 
   const handlePlusPress = () => {
     if (title === '게시판') {
@@ -29,6 +28,11 @@ const Header = ({ title }: Props) => {
     navigation.navigate('Settings' as never);
   };
 
+  const handleProfilePress = () => {
+    // 프로필 화면으로 네비게이트 (필요에 따라 수정)
+    navigation.navigate('Profile' as never);
+  };
+
   const handleBackPress = () => {
     if (navigation.canGoBack()) {
       navigation.goBack();
@@ -37,11 +41,33 @@ const Header = ({ title }: Props) => {
 
   // 우측 아이콘 렌더링 함수
   const renderRightIcon = () => {
-    if (title === '글작성' || title === '정보' || title === '멘토 추가') {
+    // "멘토 [이름]" 형태로 시작하는지 확인
+    const isMentorProfile = title.startsWith('멘토 ');
+
+    if (
+      title === '글작성' ||
+      title === '정보' ||
+      title === '멘토 추가' ||
+      isMentorProfile // 멘토 프로필 페이지인 경우 아이콘 숨김
+    ) {
       return null; // 아이콘 없음
     }
-    
-    if (title === 'my page') {
+
+    // 홈일 때는 프로필 아이콘 표시
+    if (title === '홈') {
+      return (
+        <TouchableOpacity
+          onPress={handleProfilePress}
+          activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          style={styles.touchableArea}
+        >
+          <Image source={Profile} style={styles.profileIcon} />
+        </TouchableOpacity>
+      );
+    }
+
+    if (title === '마이페이지') {
       return (
         <TouchableOpacity
           onPress={handleSettingPress}
@@ -53,7 +79,7 @@ const Header = ({ title }: Props) => {
         </TouchableOpacity>
       );
     }
-    
+
     return (
       <TouchableOpacity
         onPress={handlePlusPress}
@@ -75,7 +101,7 @@ const Header = ({ title }: Props) => {
         </View>
       );
     }
-    
+
     return (
       <View style={styles.arrowBox}>
         <TouchableOpacity
@@ -95,7 +121,7 @@ const Header = ({ title }: Props) => {
     <View style={styles.container}>
       <View style={styles.Wrapper}>
         {renderLeftSection()}
-        
+
         {/* renderRightIcon 함수 사용 */}
         {renderRightIcon()}
       </View>
@@ -136,9 +162,13 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   logo: {
-    width: 87, // 로고 크기 조정 (필요에 따라 수정)
+    width: 87,
     height: 32,
     marginRight: 10,
+  },
+  profileIcon: {
+    width: 20,
+    height: 20,
   },
   backButton: {
     padding: 5,

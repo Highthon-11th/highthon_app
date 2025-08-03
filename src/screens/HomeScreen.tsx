@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import { useNavigation } from '@react-navigation/native';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
   ActivityIndicator,
+  Dimensions,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { defaultClient } from '@/lib/client';
 import postQuery from '@lib/query/postQuery.ts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getMe } from '@lib/api/auth.ts';
+import { authClient } from '@lib/client';
+import { User } from '@lib/types/User.ts';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -45,6 +48,20 @@ const fetchMentorList = async (): Promise<Mentor[]> => {
 };
 
 const MentorMenteeScreen = () => {
+  const { data: user } = useSuspenseQuery({
+    queryKey: ['user', 'me'],
+    queryFn: getMe,
+  });
+
+  const { data: mentoringList } = useSuspenseQuery({
+    queryKey: ['mentoring', 'list'],
+    queryFn: async () => {
+      const { data } = await authClient.get<User[]>('/mentoring/list');
+
+      return data;
+    },
+  });
+
   const {
     data: mentorData = [],
     isLoading: mentorLoading,
@@ -76,9 +93,11 @@ const MentorMenteeScreen = () => {
       setFilteredPosts(postsData);
     } else {
       const filtered = postsData.filter(post =>
-        selectedTags.some(selectedTag => 
-          post.tags.some(postTag => postTag.includes(selectedTag.replace('#', '')))
-        )
+        selectedTags.some(selectedTag =>
+          post.tags.some(postTag =>
+            postTag.includes(selectedTag.replace('#', '')),
+          ),
+        ),
       );
       setFilteredPosts(filtered);
     }
@@ -128,23 +147,23 @@ const MentorMenteeScreen = () => {
     return `${month}월 ${day}일`;
   };
 
-  const MentorCard = ({ mentor }: { mentor: Mentor }) => (
+  const MentorCard = ({ mentor }: { mentor: User }) => (
     <TouchableOpacity
       style={[
         styles.mentorCard,
-        mentor.isRecommended && styles.recommendedCard,
+        // mentor.isRecommended && styles.recommendedCard,
       ]}
       onPress={() => handleMentorPress(mentor.id)}
     >
       <View style={styles.profileImage} />
-      {mentor.isRecommended && (
-        <View style={styles.recommendedBadge}>
-          <Text style={styles.badgeText}>추천</Text>
-        </View>
-      )}
+      {/*{mentor.isRecommended && (*/}
+      {/*  <View style={styles.recommendedBadge}>*/}
+      {/*    <Text style={styles.badgeText}>추천</Text>*/}
+      {/*  </View>*/}
+      {/*)}*/}
       <View style={styles.mentorInfo}>
         <Text style={styles.mentorName}>{mentor.name}</Text>
-        <Text style={styles.mentorDescription}>{mentor.description}</Text>
+        <Text style={styles.mentorDescription}>{mentor.introduce}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -166,8 +185,8 @@ const MentorMenteeScreen = () => {
             key={i}
             style={[
               styles.postTag,
-              selectedTags.some(selectedTag => 
-                tag.includes(selectedTag.replace('#', ''))
+              selectedTags.some(selectedTag =>
+                tag.includes(selectedTag.replace('#', '')),
               ) && styles.highlightedTag,
             ]}
           >
@@ -183,8 +202,6 @@ const MentorMenteeScreen = () => {
     </TouchableOpacity>
   );
 
-  const tags = ['#사회', '#꿀팁', '#건강', '#돈 관리', '#취업'];
-
   // 표시할 게시글을 최대 2개로 제한
   const displayedPosts = filteredPosts.slice(0, 2);
 
@@ -197,11 +214,13 @@ const MentorMenteeScreen = () => {
         contentContainerStyle={styles.scrollContent}
       >
         {/* 추천 멘토 섹션 */}
-        <Text style={styles.sectionTitle}>추천 멘토</Text>
+        <Text style={styles.sectionTitle}>
+          {user.role === 'MENTOR' ? '멘티' : '멘토'} 목록
+        </Text>
         {mentorLoading ? (
           <ActivityIndicator size="small" color="#6C5CE7" />
         ) : (
-          mentorData.map(mentor => (
+          mentoringList.map(mentor => (
             <MentorCard key={mentor.id} mentor={mentor} />
           ))
         )}
@@ -210,7 +229,7 @@ const MentorMenteeScreen = () => {
           style={styles.button}
           onPress={handleMentorManagerPress}
         >
-          <Text style={styles.buttonText}>멘토 매니저 가기</Text>
+          <Text style={styles.buttonText}>더보기</Text>
         </TouchableOpacity>
 
         {/* 커뮤니티 섹션 */}
@@ -226,41 +245,6 @@ const MentorMenteeScreen = () => {
           )}
         </View>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.tagScrollContainer}
-          contentContainerStyle={styles.tagScrollContent}
-        >
-          {tags.map((tag, i) => (
-            <TouchableOpacity
-              key={i}
-              onPress={() => handleTagPress(tag)}
-              style={[
-                styles.tagButton,
-                selectedTags.includes(tag) && styles.selectedTagButton,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.tagButtonText,
-                  selectedTags.includes(tag) && styles.selectedTagText,
-                ]}
-              >
-                {tag}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* 필터링된 게시글 표시 */}
-        {selectedTags.length > 0 && (
-          <Text style={styles.filterInfo}>
-            {selectedTags.join(', ')} 태그로 필터링된 게시글 ({filteredPosts.length}개
-            중 {Math.min(filteredPosts.length, 2)}개 표시)
-          </Text>
-        )}
-
         {/* 게시글 표시 */}
         {postsLoading ? (
           <ActivityIndicator size="small" color="#6C5CE7" />
@@ -269,10 +253,9 @@ const MentorMenteeScreen = () => {
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
-              {selectedTags.length > 0 
+              {selectedTags.length > 0
                 ? '선택한 태그에 해당하는 게시글이 없습니다.'
-                : '게시글이 없습니다.'
-              }
+                : '게시글이 없습니다.'}
             </Text>
           </View>
         )}

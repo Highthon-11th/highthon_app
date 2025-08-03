@@ -1,56 +1,98 @@
-import Me from '@/components/chat/Me';
-import Mentor from '@/components/chat/Mentor';
 import Header from '@/components/Header';
 import { COLOR } from '@/styles/color/color';
-import { useRoute } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Text,
+  FlatList,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootNavGraph } from '@navigation/navigation/graph';
+import firestore from '@react-native-firebase/firestore';
+import { authClient } from '@lib/client';
+import { Message } from '@/lib/types/Message';
+import ChatBox from '@components/chat/ChatBox.tsx';
 
-const ChatScreen = () => {
-  const route = useRoute();
-  const params = route.params;
+interface Props extends NativeStackScreenProps<RootNavGraph, 'Chat'> {}
+
+const ChatScreen = ({ route }: Props) => {
+  const { chatRoomId, user } = route.params;
+  console.log('ChatRoomId:', chatRoomId);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    let isInitialLoad = true;
+
+    const unsubscribe = firestore()
+      .collection(`chatRooms/${chatRoomId}/messages`)
+      .orderBy('createdDate', 'asc')
+      .onSnapshot(snapshot => {
+        if (isInitialLoad) {
+          isInitialLoad = false;
+
+          const initialMessages: Message[] = snapshot.docs.map(doc => {
+            return doc.data() as Message;
+          });
+
+          setMessages(initialMessages);
+          return;
+        }
+
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'added') {
+            const newMessage = change.doc.data() as Message;
+
+            setMessages(prev => [...prev, newMessage]);
+          }
+        });
+      });
+
+    return () => unsubscribe();
+  }, [chatRoomId, setMessages]);
+
   const [message, setMessage] = useState('');
 
   const handleSendMessage = () => {
+    console.log('Sending message');
+
     if (message.trim()) {
-      console.log('메시지 전송:', message);
+      authClient
+        .post('/mentoring/chat/send', {
+          chatRoomId,
+          message,
+        })
+        .then(response => {
+          console.log('메시지 전송 성공:', response.data);
+        })
+        .catch(error => {
+          console.error('메시지 전송 실패:', error);
+        });
       setMessage('');
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="누구 멘토" />
+      <Header
+        title={`${user.role === 'MENTOR' ? '멘토' : '멘티'} ${user.name}`}
+      />
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView
+        <FlatList
           style={styles.wrapper}
-          contentContainerStyle={styles.scrollContent}
-        >
-          <Mentor message="앙기모찌" name="누구 멘토" />
-          <Me message="누구임" />
-          <Mentor
-            message="안녕하세요! 궁금한 것이 있으시면 언제든지 물어보세요."
-            name="누구 멘토"
-          />
-          <Me message="면접 준비는 어떻게 해야 할까요?" />
-          <Mentor
-            message="면접 준비는 여러 단계로 나누어서 체계적으로 접근하는 것이 좋습니다. 먼저 지원하는 회사와 직무에 대해 충분히 조사해보세요."
-            name="누구 멘토"
-          />
-        </ScrollView>
+          data={messages}
+          renderItem={({ item }) => <ChatBox data={item} />}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />} // 세로 간격
+        />
+        <View style={{ height: 12 }}></View>
 
         <View style={styles.messageInputContainer}>
           <TextInput
@@ -93,7 +135,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingVertical: 20,
   },
   scrollContent: {
     paddingBottom: 80,
@@ -102,10 +144,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messageInputContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    // position: 'absolute',
+    // bottom: 0,
+    // left: 0,
+    // right: 0,
     flexDirection: 'row',
     alignItems: 'flex-end',
     paddingHorizontal: 20,

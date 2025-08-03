@@ -9,6 +9,7 @@ import UploadPostScreen from '@/screens/UploadPostScreen';
 import QuestionScreen from '@/screens/QuestionScreen';
 import ChatScreen from '@/screens/ChatScreen';
 import AddMentorScreen from '@/screens/AddMentor';
+import LoginScreen from '@screens/LoginScreen.tsx';
 
 declare global {
   namespace ReactNavigation {
@@ -21,11 +22,12 @@ const Stack = createNativeStackNavigator<RootNavGraph>();
 const RootNavigation = () => {
   return (
     <Stack.Navigator
-      initialRouteName={'Home'}
+      initialRouteName={'Login'}
       screenOptions={{
         headerShown: false,
       }}
     >
+      <Stack.Screen name={'Login'} component={LoginScreen} />
       <Stack.Screen name={'Home'} component={HomeScreen} />
       <Stack.Screen name={'Community'} component={CommunityScreen} />
       <Stack.Screen name={'Profile'} component={ProfileScreen} />

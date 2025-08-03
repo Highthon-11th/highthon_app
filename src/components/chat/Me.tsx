@@ -12,7 +12,6 @@ const Me = ({ message }: Props) => {
         width: '100%',
         display: 'flex',
         alignItems: 'flex-end',
-        minHeight: 60,
       }}
     >
       <Text

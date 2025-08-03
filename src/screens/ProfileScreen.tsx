@@ -4,6 +4,7 @@ import { body1, body2, body3 } from '@/styles/typography/body';
 import { title2 } from '@/styles/typography/title';
 import React, { useState } from 'react';
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,111 +12,90 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getMe } from '@lib/api/auth.ts';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { authClient } from '@lib/client';
+import { Post } from '@lib/types/Post.ts';
+import PostCard from '@components/post/PostCard.tsx';
 
 const ProfileScreen = () => {
   const [activeTab, setActiveTab] = useState('posts');
 
-  const postData = [
-    {
-      id: 1,
-      category: '질문',
-      title: '면접 합격 하려면 어떻게 해야 되나요?',
-      tags: ['꿀팁', '취업'],
-      author: '*멘티*',
-      role: '작성자',
-      date: '12월 10일',
-      views: 20,
-      categoryColor: COLOR.main,
-    },
-    {
-      id: 2,
-      category: '질문',
-      title: '면접 합격 하려면 어떻게 해야 되나요?',
-      tags: ['꿀팁', '취업'],
-      author: '*멘티*',
-      role: '작성자',
-      date: '12월 10일',
-      views: 20,
-      categoryColor: COLOR.main,
-    },
-    {
-      id: 3,
-      category: '정보',
-      title: '면접 합격 하려면 어떻게 해야 되나요?',
-      tags: ['꿀팁', '취업'],
-      author: '*멘티*',
-      role: '작성자',
-      date: '12월 10일',
-      views: 20,
-      categoryColor: COLOR.stroke,
-    },
-    {
-      id: 4,
-      category: '정보',
-      title: '면접 합격 하려면 어떻게 해야 되나요?',
-      tags: ['꿀팁', '취업'],
-      author: '*멘티*',
-      role: '작성자',
-      date: '12월 10일',
-      views: 20,
-      categoryColor: COLOR.stroke,
-    },
-  ];
+  const { data } = useSuspenseQuery({
+    queryKey: ['post', 'list', 'my'],
+    queryFn: async () => {
+      const res = await authClient.get<Post[]>('/post/my');
 
-  const PostItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.postItem}>
-      <View style={styles.postHeader}>
-        <View
-          style={[
-            styles.categoryBadge,
-            { backgroundColor: item.categoryColor },
-          ]}
-        >
-          <Text
-            style={[
-              body3,
-              {
-                color: item.categoryColor === COLOR.main ? '#fff' : COLOR.black,
-              },
-            ]}
-          >
-            {item.category}
-          </Text>
-        </View>
-        <TouchableOpacity style={styles.moreButton}>
-          <Text style={styles.moreButtonText}>⋮</Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={[body1, styles.postTitle]}>{item.title}</Text>
-      <View style={styles.tagsContainer}>
-        {(item.tags || []).map((tag: any, index: any) => (
-          <Text key={index} style={[body3, { color: COLOR.main }]}>
-            #{tag}
-          </Text>
-        ))}
-      </View>
-      <Text style={[body3, { color: COLOR.black }]}>
-        {item.author} · {item.role} · {item.date} 조회 {item.views}
-      </Text>
-    </TouchableOpacity>
-  );
+      return res.data;
+    },
+  });
+
+  const { data: user } = useSuspenseQuery({
+    queryKey: ['user', 'me'],
+    queryFn: getMe,
+  });
+
+  // const PostItem = ({ item }: { item: any }) => (
+  //   <TouchableOpacity style={styles.postItem}>
+  //     <View style={styles.postHeader}>
+  //       <View
+  //         style={[
+  //           styles.categoryBadge,
+  //           { backgroundColor: item.categoryColor },
+  //         ]}
+  //       >
+  //         <Text
+  //           style={[
+  //             body3,
+  //             {
+  //               color: item.categoryColor === COLOR.main ? '#fff' : COLOR.black,
+  //             },
+  //           ]}
+  //         >
+  //           {item.category}
+  //         </Text>
+  //       </View>
+  //       <TouchableOpacity style={styles.moreButton}>
+  //         <Text style={styles.moreButtonText}>⋮</Text>
+  //       </TouchableOpacity>
+  //     </View>
+  //     <Text style={[body1, styles.postTitle]}>{item.title}</Text>
+  //     <View style={styles.tagsContainer}>
+  //       {(item.tags || []).map((tag: any, index: any) => (
+  //         <Text key={index} style={[body3, { color: COLOR.main }]}>
+  //           #{tag}
+  //         </Text>
+  //       ))}
+  //     </View>
+  //     <Text style={[body3, { color: COLOR.black }]}>
+  //       {item.author} · {item.role} · {item.date} 조회 {item.views}
+  //     </Text>
+  //   </TouchableOpacity>
+  // );
+
+  console.log(user.profileImageUrl);
 
   return (
     <SafeAreaView style={styles.container}>
       <Header title="마이페이지" />
 
       <View style={styles.profileSection}>
-        <View style={styles.profileImage} />
+        <Image
+          style={styles.profileImage}
+          source={{
+            uri: user.profileImageUrl || 'https://via.placeholder.com/80',
+          }}
+        />
         <View style={styles.profileInfo}>
           <View style={styles.userNameContainer}>
             <View style={styles.mentorBadge}>
-              <Text style={[body3, { color: '#fff' }]}>멘티</Text>
+              <Text style={[body3, { color: '#fff' }]}>
+                {user.role === 'MENTOR' ? '멘토' : '멘티'}
+              </Text>
             </View>
-            <Text style={title2}>사용자 이름</Text>
+            <Text style={title2}>{user.name}</Text>
           </View>
-          <Text style={[body2, { color: COLOR.black }]}>
-            righton0802@kakao.com
-          </Text>
+          <Text style={[body2, { color: COLOR.black }]}>{user.email}</Text>
         </View>
       </View>
 
@@ -156,11 +136,19 @@ const ProfileScreen = () => {
 
       <ScrollView style={styles.contentContainer}>
         {activeTab === 'posts' ? (
-          postData.map(item => <PostItem key={item.id} item={item} />)
+          data.length > 0 ? (
+            data.map(item => <PostCard key={item.id} data={item} />)
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={[body2, { color: COLOR.black }]}>
+                작성한 댓글이 없습니다.
+              </Text>
+            </View>
+          )
         ) : (
           <View style={styles.emptyContainer}>
             <Text style={[body2, { color: COLOR.black }]}>
-              작성한 댓글이 없습니다.
+              작성한 게시글이 없습니다.
             </Text>
           </View>
         )}
