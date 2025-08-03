@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
+  Image,
   SafeAreaView,
-  View,
+  StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Image,
-  Text,
+  View,
 } from 'react-native';
 import Header from '../components/Header';
 import SearchIcon from '../../assets/search.png';
 import MentorList from '../components/MentorList';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { defaultClient } from '@/lib/client';
+import { getMe } from '@/lib/api/auth';
 
 export interface Mentor {
   id: string;
@@ -50,9 +51,14 @@ const HomeScreen = () => {
     mentor.name.toLowerCase().includes(searchText.toLowerCase()),
   );
 
+  const { data: user } = useSuspenseQuery({
+    queryKey: ['user', 'me'],
+    queryFn: getMe,
+  });
   return (
     <SafeAreaView>
-      <Header title="멘토 추가" />
+      <Header title={`${user.role === 'MENTOR' ? '멘티' : '멘토'} 추가`} />
+
       <View style={styles.searchWrap}>
         <TouchableOpacity style={styles.searchIconContainer}>
           <Image source={SearchIcon} style={styles.searchIcon} />

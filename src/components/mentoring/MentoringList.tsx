@@ -2,7 +2,7 @@ import React from 'react';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { authClient } from '@/lib/client';
 import { User } from '@lib/types/User.ts';
-import { FlatList } from 'react-native';
+import { FlatList, RefreshControl } from 'react-native';
 import MentoringCard from '@components/mentoring/MentoringCard.tsx';
 
 const mentoringQuery = queryOptions({
@@ -24,12 +24,22 @@ const chatRoomQuery = queryOptions({
 });
 
 const MentoringList = () => {
-  const { data } = useSuspenseQuery(mentoringQuery);
+  const { data, refetch } = useSuspenseQuery(mentoringQuery);
   const { data: chatRoomList } = useSuspenseQuery(chatRoomQuery);
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    refetch().then(() => setRefreshing(false));
+  }, [refetch]);
 
   return (
     <FlatList
       data={data}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
       renderItem={({ item, index }) => (
         <MentoringCard data={item} chatRoomId={chatRoomList[index]} />
       )}

@@ -79,7 +79,9 @@ const ChatScreen = ({ route }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title={`멘토 ${user.name}`} />
+      <Header
+        title={`${user.role === 'MENTOR' ? '멘토' : '멘티'} ${user.name}`}
+      />
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

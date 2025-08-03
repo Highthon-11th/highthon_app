@@ -23,7 +23,6 @@ import Header from '@/components/Header';
 import TagList from '@components/tag/TagList.tsx';
 import { ImageAsset } from '@lib/types/Image.ts';
 import { authClient } from '@lib/client';
-import { login } from '@lib/api/auth.ts';
 import { useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import postQuery from '@lib/query/postQuery.ts';
@@ -207,7 +206,9 @@ const UploadPostScreen = () => {
               .postForm('/post/create', body)
               .then(() => {
                 queryClient.fetchQuery(postQuery.list([]));
-                navigation.navigate('Community');
+                navigation.goBack();
+
+                // navigation.navigate('Community');
               })
               .catch(err => console.error(err));
           }}

@@ -1,35 +1,21 @@
 import {
   ActivityIndicator,
-  Image,
   SafeAreaView,
   StyleSheet,
-  TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
-import searchIcon from '../../assets/search.png';
 import { Suspense, useState } from 'react';
 import Header from '@/components/Header';
 import PostCardList from '@components/post/PostCardList.tsx';
 import TagList from '@components/tag/TagList.tsx';
 
 const CommunityScreen = () => {
-  // const [searchValue, setSearchValue] = useState<string>('');
   const [selectedTags, setSelectedTags] = useState<number[]>([]);
 
   return (
     <SafeAreaView style={styles.container}>
       <Header title="게시판" />
       <View style={styles.wrapper}>
-        {/*<TouchableOpacity>*/}
-        {/*  <Image source={searchIcon} style={styles.search} />*/}
-        {/*</TouchableOpacity>*/}
-        {/*<TextInput*/}
-        {/*  placeholder="검색"*/}
-        {/*  style={styles.searchbar}*/}
-        {/*  value={searchValue}*/}
-        {/*  onChangeText={setSearchValue}*/}
-        {/*/>*/}
         <View style={{ height: 12 }} />
         <Suspense fallback={<ActivityIndicator />}>
           <TagList

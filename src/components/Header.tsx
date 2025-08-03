@@ -43,16 +43,16 @@ const Header = ({ title }: Props) => {
   const renderRightIcon = () => {
     // "멘토 [이름]" 형태로 시작하는지 확인
     const isMentorProfile = title.startsWith('멘토 ');
-    
+
     if (
-      title === '글작성' || 
-      title === '정보' || 
+      title === '글작성' ||
+      title === '정보' ||
       title === '멘토 추가' ||
       isMentorProfile // 멘토 프로필 페이지인 경우 아이콘 숨김
     ) {
       return null; // 아이콘 없음
     }
-    
+
     // 홈일 때는 프로필 아이콘 표시
     if (title === '홈') {
       return (
@@ -66,8 +66,8 @@ const Header = ({ title }: Props) => {
         </TouchableOpacity>
       );
     }
-    
-    if (title === 'my page') {
+
+    if (title === '마이페이지') {
       return (
         <TouchableOpacity
           onPress={handleSettingPress}
@@ -79,7 +79,7 @@ const Header = ({ title }: Props) => {
         </TouchableOpacity>
       );
     }
-    
+
     return (
       <TouchableOpacity
         onPress={handlePlusPress}
@@ -101,7 +101,7 @@ const Header = ({ title }: Props) => {
         </View>
       );
     }
-    
+
     return (
       <View style={styles.arrowBox}>
         <TouchableOpacity
@@ -121,7 +121,7 @@ const Header = ({ title }: Props) => {
     <View style={styles.container}>
       <View style={styles.Wrapper}>
         {renderLeftSection()}
-        
+
         {/* renderRightIcon 함수 사용 */}
         {renderRightIcon()}
       </View>

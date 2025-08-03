@@ -36,9 +36,7 @@ const MentoringCard = ({ data, chatRoomId }: Props) => {
           <Text style={title3}>{data.name}</Text>
         </View>
         <View style={styles.cardBottomBox}>
-          <Text style={[body2, { color: '#747474' }]}>
-            "안녕하세요 당신의 멘토입니다."
-          </Text>
+          <Text style={[body2, { color: '#747474' }]}>{data.introduce}</Text>
         </View>
       </View>
     </TouchableOpacity>
