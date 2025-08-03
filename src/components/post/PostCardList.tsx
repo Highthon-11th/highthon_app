@@ -26,6 +26,9 @@ const PostCardList = ({ selectedTags }: Props) => {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
+      style={{
+        height: '100%',
+      }}
       renderItem={({ item }) => (
         <PostCard
           data={item}

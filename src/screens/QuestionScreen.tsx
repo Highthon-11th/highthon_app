@@ -1,5 +1,5 @@
 import Header from '@/components/Header';
-import Comment from '@/components/question/Comment';
+import { Comment as CommentType } from '@/lib/types/Comment';
 import { COLOR } from '@/styles/color/color';
 import { body1, body3 } from '@/styles/typography/body';
 import { title1 } from '@/styles/typography/title';
@@ -18,6 +18,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootNavGraph } from '@navigation/navigation/graph';
+import { authClient } from '@lib/client';
+import { useQueryClient } from '@tanstack/react-query';
+import CommentList from '@components/comment/CommentList.tsx';
 
 interface Props extends NativeStackScreenProps<RootNavGraph, 'Question'> {}
 
@@ -25,11 +28,27 @@ const QuestionScreen = ({ route }: Props) => {
   const [comment, setComment] = useState('');
 
   const { post } = route.params;
+  const queryClient = useQueryClient();
 
   const handleSendComment = () => {
     if (comment.trim()) {
-      // 댓글 전송 로직
-      console.log('댓글 전송:', comment);
+      authClient
+        .post('/post/comment', {
+          postId: post.id,
+          content: comment,
+        })
+        .then(() => {
+          queryClient.fetchQuery({
+            queryKey: ['post', 'comment', post.id],
+            queryFn: async () => {
+              const res = await authClient.get<CommentType[]>(
+                `/post/${post.id}/comments`,
+              );
+
+              return res.data;
+            },
+          });
+        });
       setComment('');
     }
   };
@@ -49,73 +68,65 @@ const QuestionScreen = ({ route }: Props) => {
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView
-          style={styles.wrapper}
-          contentContainerStyle={styles.scrollContent}
-        >
-          <View style={styles.infoWrap}>
-            <View
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                flexDirection: 'row',
-              }}
-            >
-              <View style={styles.profile} />
-              <Text style={body3}>
-                *{post.authorType === 'MENTOR' ? '멘토' : '멘티'}* ·{' '}
-                {post.authorName}
-              </Text>
-            </View>
-            <Text style={title1}>{post.title}</Text>
-            <View style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-              {post.tags &&
-                post.tags.map((tag: string, index: number) => (
-                  <Text key={index} style={[body3, { color: COLOR.main }]}>
-                    #{tag}
-                  </Text>
-                ))}
-            </View>
+        <View style={styles.infoWrap}>
+          <View
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              flexDirection: 'row',
+            }}
+          >
+            <View style={styles.profile} />
             <Text style={body3}>
-              · {formatDate(post.createdDate)} · 조회 20
+              *{post.authorType === 'MENTOR' ? '멘토' : '멘티'}* ·{' '}
+              {post.authorName}
             </Text>
           </View>
-          <View style={styles.contentContainer}>
-            {/* 이미지가 있는 경우 표시 */}
-            {post.imageUrl && (
-              <Image
-                source={{ uri: post.imageUrl }}
-                style={{
-                  width: '100%',
-                  backgroundColor: COLOR.stroke,
-                  height: 182,
-                  borderRadius: 8,
-                }}
-              />
-            )}
-            <Text style={body1}>{post.content}</Text>
+          <Text style={title1}>{post.title}</Text>
+          <View style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+            {post.tags &&
+              post.tags.map((tag: string, index: number) => (
+                <Text key={index} style={[body3, { color: COLOR.main }]}>
+                  #{tag}
+                </Text>
+              ))}
           </View>
-          <View>
-            <Text
-              style={[
-                title1,
-                {
-                  borderColor: COLOR.stroke,
-                  borderBottomWidth: 1,
-                  paddingHorizontal: 20,
-                  paddingVertical: 12,
-                },
-              ]}
-            >
-              댓글
-            </Text>
-          </View>
-          <View style={styles.commentsContainer}>
-            <Comment />
-            <Comment />
-          </View>
-        </ScrollView>
+          <Text style={body3}>· {formatDate(post.createdDate)} · 조회 20</Text>
+        </View>
+        <View style={styles.contentContainer}>
+          {/* 이미지가 있는 경우 표시 */}
+          {post.imageUrl && (
+            <Image
+              source={{ uri: post.imageUrl }}
+              style={{
+                width: '100%',
+                backgroundColor: COLOR.stroke,
+                height: 182,
+                borderRadius: 8,
+              }}
+            />
+          )}
+          <Text style={body1}>{post.content}</Text>
+        </View>
+        <View>
+          <Text
+            style={[
+              title1,
+              {
+                borderColor: COLOR.stroke,
+                borderBottomWidth: 1,
+                paddingHorizontal: 20,
+                paddingVertical: 12,
+              },
+            ]}
+          >
+            댓글
+          </Text>
+        </View>
+        <View style={styles.commentsContainer}>
+          <CommentList post={post} />
+        </View>
 
         <View style={styles.commentInputContainer}>
           <TextInput
